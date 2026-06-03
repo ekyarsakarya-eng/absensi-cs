@@ -15,6 +15,20 @@ async function api(payload) {
   return res.json();
 }
 
+// ===== VERSION =====
+async function loadVersion() {
+  try {
+    const manifest = await fetch('./manifest.json?_=' + Date.now()).then(r => r.json());
+    const v = manifest.version || '1.0';
+    const el = document.getElementById('appVersion');
+    if (el) el.textContent = `@v${v} • SMG-2026`;
+    // juga update title jika perlu
+    document.title = manifest.name || document.title;
+  } catch(e) {
+    console.warn('Gagal load version', e);
+  }
+}
+
 // ===== VIEWS =====
 function show(view) {
   ['loginView','homeView','absensiView','rekapView'].forEach(id => $('#'+id).classList.add('hidden'));
@@ -165,6 +179,7 @@ $('#refreshBtn').addEventListener('click', loadRekap);
 
 // ===== INIT =====
 window.addEventListener('load', () => {
+  loadVersion(); // baca versi dari manifest.json
   const saved = localStorage.getItem('absensi_user');
   if(saved){ user = JSON.parse(saved); initHome(); } else { show('loginView'); }
   if('serviceWorker' in navigator){ navigator.serviceWorker.register('sw.js'); }
