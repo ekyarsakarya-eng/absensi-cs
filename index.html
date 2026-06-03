@@ -1,29 +1,30 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Absensi Karyawan Terpadu</title>
-  <link rel="manifest" href="manifest.json">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Absensi Karyawan</title>
+  <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIkFic2Vuc2kgS2FyeWF3YW4gVGVycGFkdSIsCiAgInNob3J0X25hbWUiOiAiQWJzZW5zaSIsCiAgImRlc2NyaXB0aW9uIjogIkFwbGlrYXNpIGFic2Vuc2kgbW9kZXJuIGRlbmdhbiBHb29nbGUgU2hlZXRzIiwKICAic3RhcnRfdXJsIjogIi4vaW5kZXguaHRtbCIsCiAgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsCiAgImJhY2tncm91bmRfY29sb3IiOiAiIzAyMDYxNyIsCiAgInRoZW1lX2NvbG9yIjogIiMwZWE1ZTkiLAogICJ2ZXJzaW9uIjogIjEuMCIsCiAgImljb25zIjogWwogICAgewogICAgICAic3JjIjogImljb24tMTkyLnBuZyIsCiAgICAgICJzaXplcyI6ICIxOTJ4MTkyIiwKICAgICAgInR5cGUiOiAiaW1hZ2UvcG5nIiwKICAgICAgInB1cnBvc2UiOiAiYW55IG1hc2thYmxlIgogICAgfSwKICAgIHsKICAgICAgInNyYyI6ICJpY29uLTUxMi5wbmciLAogICAgICAic2l6ZXMiOiAiNTEyeDUxMiIsCiAgICAgICJ0eXBlIjogImltYWdlL3BuZyIsCiAgICAgICJwdXJwb3NlIjogImFueSBtYXNrYWJsZSIKICAgIH0KICBdCn0=">
   <meta name="theme-color" content="#0ea5e9">
   <link rel="icon" href="icon-192.png">
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     body { font-family: 'Outfit', sans-serif; -webkit-tap-highlight-color: transparent; }
     .glass { backdrop-filter: blur(20px); background: rgba(255,255,255,0.06); }
-    .btn { transition: all 0.2s; }
+    .btn { transition: all .18s ease; }
     .btn:active { transform: scale(0.96); }
     .card-hover:hover { transform: translateY(-2px); box-shadow: 0 20px 40px -10px rgba(14,165,233,0.3); }
   </style>
 </head>
 <body class="min-h-screen bg-slate-950 text-white grid place-items-center p-4 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-sky-900 via-slate-950 to-black">
-  <div id="app" class="w-[360px] max-w-[calc(100%-2rem)]">
+  <div id="app" class="w-full max-w-[360px] mx-auto">
     <!-- LOGIN -->
-    <div id="loginView" class="w-full glass rounded-[2rem] p-8 shadow-2xl border border-white/10">
+    <div id="loginView" class="glass rounded-[2rem] p-8 shadow-2xl border border-white/10">
       <div class="flex flex-col items-center mb-6">
         <img src="icon-192.png" class="w-20 h-20 rounded-2xl shadow-lg mb-3" alt="logo">
-        <h1 class="text-2xl font-semibold">Absensi Karyawan Terpadu</h1>
+        <h1 class="text-2xl font-semibold">Absensi Karyawan</h1>
+        <p class="text-white/60 text-sm">Masuk dengan akun Anda</p>
       </div>
       <form id="loginForm" class="space-y-4">
         <div>
@@ -36,12 +37,12 @@
         </div>
         <button class="btn w-full py-3 rounded-xl bg-sky-500 hover:bg-sky-400 font-medium shadow-lg shadow-sky-900/30">Masuk</button>
         <p id="loginError" class="text-red-400 text-sm text-center hidden"></p>
-      </form>
-      <p id="appVersion" class="text-center text-xs text-white/40 mt-6">@v1.1 • SMG-2026</p>
+      </form
+      <p id="appVersion" class="text-center text-xs text-white/40 mt-6">@v1.2 • SMG-2026</p>
     </div>
 
     <!-- HOME -->
-    <div id="homeView" class="hidden w-full">
+    <div id="homeView" class="hidden">
       <div class="glass rounded-[2rem] p-6 shadow-2xl border border-white/10 mb-4">
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-3">
@@ -74,7 +75,7 @@
     </div>
 
     <!-- ABSENSI VIEW -->
-    <div id="absensiView" class="hidden w-full">
+    <div id="absensiView" class="hidden">
       <button class="mb-3 text-sm text-white/60 hover:text-white" data-back>← Kembali</button>
       <div class="glass rounded-[2rem] p-6 shadow-2xl border border-white/10">
         <div class="text-center">
@@ -83,55 +84,61 @@
         </div>
         <div class="grid grid-cols-2 gap-3 mt-6">
           <button id="btnIn" class="btn py-5 rounded-2xl bg-emerald-500/90 hover:bg-emerald-500 font-medium shadow-lg shadow-emerald-900/30 flex flex-col items-center">
-            <span class="text-2xl mb-1">↑</span>Masuk
+            <span class="text-2xl">↓</span>
+            <span>Masuk</span>
+            <span id="timeIn" class="text-xs opacity-80 mt-1">-</span>
           </button>
           <button id="btnOut" class="btn py-5 rounded-2xl bg-rose-500/90 hover:bg-rose-500 font-medium shadow-lg shadow-rose-900/30 flex flex-col items-center">
-            <span class="text-2xl mb-1">↓</span>Pulang
+            <span class="text-2xl">↑</span>
+            <span>Pulang</span>
+            <span id="timeOut" class="text-xs opacity-80 mt-1">-</span>
           </button>
         </div>
-        <div class="mt-6 pt-6 border-t border-white/10 grid grid-cols-2 gap-4 text-center">
-          <div><p class="text-xs text-white/50">Masuk</p><p id="timeIn" class="font-mono text-lg">-</p></div>
-          <div><p class="text-xs text-white/50">Pulang</p><p id="timeOut" class="font-mono text-lg">-</p></div>
-        </div>
-        <p id="statusMsg" class="text-center text-sm mt-4 h-5 text-sky-300"></p>
+        <p id="statusMsg" class="text-center text-sm mt-4 text-sky-300 h-5"></p>
+        <p class="text-center text-[11px] text-white/40 mt-2">Foto selfie wajib dengan watermark waktu</p>
       </div>
     </div>
 
     <!-- REKAP VIEW -->
-    <div id="rekapView" class="hidden w-full">
+    <div id="rekapView" class="hidden">
       <button class="mb-3 text-sm text-white/60 hover:text-white" data-back>← Kembali</button>
       <div class="glass rounded-[2rem] p-6 shadow-2xl border border-white/10">
-        <div class="flex items-center justify-between mb-4">
-          <h3 id="rekapTitle" class="font-medium">Rekap Bulan Ini</h3>
+        <div class="flex items-center justify-between mb-3">
+          <div>
+            <h3 id="rekapTitle" class="font-medium">Rekap</h3>
+            <p id="totalKerja" class="text-xs text-emerald-300">Total hadir: 0 hari</p>
+          </div>
           <button id="refreshBtn" class="text-xs px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20">Refresh</button>
         </div>
-        <div class="max-h-[50vh] overflow-auto -mx-2 px-2">
+        <div class="max-h-[55vh] overflow-auto rounded-xl border border-white/5">
           <table class="w-full text-sm">
-            <thead class="sticky top-0 bg-slate-900/80 backdrop-blur text-white/60">
-              <tr><th class="text-left p-2 font-normal">Tgl</th><th class="p-2 font-normal">Masuk</th><th class="p-2 font-normal">Pulang</th></tr>
+            <thead class="sticky top-0 bg-slate-900/90 backdrop-blur">
+              <tr class="text-white/60">
+                <th class="text-left p-2.5 font-normal">Tgl</th>
+                <th class="p-2.5 font-normal">In</th>
+                <th class="p-2.5 font-normal">Out</th>
+              </tr>
             </thead>
             <tbody id="rekapBody"></tbody>
           </table>
         </div>
-        <p id="totalKerja" class="text-center text-xs text-white/50 mt-4"></p>
       </div>
     </div>
-  </div>
 
-  <!-- CAMERA MODAL -->
-  <div id="camModal" class="fixed inset-0 bg-black/90 hidden items-center justify-center z-50 p-4">
-    <div class="w-full max-w-[360px] bg-slate-900 rounded-[2rem] overflow-hidden border border-white/10">
-      <div class="aspect-[3/4] bg-black relative">
-        <video id="video" autoplay playsinline class="w-full h-full object-cover"></video>
+    <!-- CAMERA MODAL -->
+    <div id="camModal" class="fixed inset-0 bg-black/90 hidden items-center justify-center p-4 z-50">
+      <div class="w-full max-w-sm">
+        <video id="video" autoplay playsinline class="w-full rounded-2xl bg-black"></video>
         <canvas id="canvas" class="hidden"></canvas>
-      </div>
-      <div class="p-4 flex gap-3">
-        <button id="cancelCam" class="flex-1 py-3 rounded-xl bg-white/10">Batal</button>
-        <button id="snapBtn" class="flex-1 py-3 rounded-xl bg-sky-500 font-medium">Jepret & Absen</button>
+        <div class="flex gap-3 mt-4">
+          <button id="snapBtn" class="flex-1 py-3 rounded-xl bg-sky-500 font-medium">Ambil Foto</button>
+          <button id="cancelCam" class="px-4 py-3 rounded-xl bg-white/10">Batal</button>
+        </div>
+        <p class="text-center text-xs text-white/50 mt-2">Posisikan wajah di tengah</p>
       </div>
     </div>
   </div>
 
-  <script src="app.js"></script>
+  <script src="data:application/javascript;base64,Ly8gPT09PT0gQ09ORklHID09PT09CmNvbnN0IEFQSV9VUkwgPSAnR0FOVElfREVOR0FOX1VSTF9XRUJfQVBQX0FOREEnOwoKbGV0IHVzZXIgPSBudWxsOwpsZXQgY3VycmVudFR5cGUgPSBudWxsOwpsZXQgc3RyZWFtID0gbnVsbDsKCmNvbnN0ICQgPSBzID0+IGRvY3VtZW50LnF1ZXJ5U2VsZWN0b3Iocyk7CmNvbnN0IGZtdFdJQiA9IGQgPT4gbmV3IEludGwuRGF0ZVRpbWVGb3JtYXQoJ2lkLUlEJywgeyB0aW1lWm9uZTogJ0FzaWEvSmFrYXJ0YScsIGhvdXI6JzItZGlnaXQnLCBtaW51dGU6JzItZGlnaXQnLCBzZWNvbmQ6JzItZGlnaXQnLCBob3VyMTI6ZmFsc2UgfSkuZm9ybWF0KGQpOwpjb25zdCBmbXREYXRlID0gZCA9PiBuZXcgSW50bC5EYXRlVGltZUZvcm1hdCgnaWQtSUQnLCB7IHRpbWVab25lOiAnQXNpYS9KYWthcnRhJywgd2Vla2RheTonbG9uZycsIGRheTonMi1kaWdpdCcsIG1vbnRoOidsb25nJywgeWVhcjonbnVtZXJpYycgfSkuZm9ybWF0KGQpOwpjb25zdCBtb250aElEID0gWydKYW51YXJpJywnRmVicnVhcmknLCdNYXJldCcsJ0FwcmlsJywnTWVpJywnSnVuaScsJ0p1bGknLCdBZ3VzdHVzJywnU2VwdGVtYmVyJywnT2t0b2JlcicsJ05vdmVtYmVyJywnRGVzZW1iZXInXTsKCmFzeW5jIGZ1bmN0aW9uIGFwaShwYXlsb2FkKSB7CiAgY29uc3QgcmVzID0gYXdhaXQgZmV0Y2goQVBJX1VSTCwgeyBtZXRob2Q6J1BPU1QnLCBoZWFkZXJzOnsnQ29udGVudC1UeXBlJzondGV4dC9wbGFpbjtjaGFyc2V0PXV0Zi04J30sIGJvZHk6IEpTT04uc3RyaW5naWZ5KHBheWxvYWQpIH0pOwogIHJldHVybiByZXMuanNvbigpOwp9CgovLyA9PT09PSBWSUVXUyA9PT09PQpmdW5jdGlvbiBzaG93KHZpZXcpIHsKICBbJ2xvZ2luVmlldycsJ2hvbWVWaWV3JywnYWJzZW5zaVZpZXcnLCdyZWthcFZpZXcnXS5mb3JFYWNoKGlkID0+ICQoJyMnK2lkKS5jbGFzc0xpc3QuYWRkKCdoaWRkZW4nKSk7CiAgJCgnIycrdmlldykuY2xhc3NMaXN0LnJlbW92ZSgnaGlkZGVuJyk7Cn0KCi8vID09PT09IENMT0NLID09PT09CmZ1bmN0aW9uIHN0YXJ0Q2xvY2tzKCkgewogIGNvbnN0IHRpY2sgPSAoKSA9PiB7CiAgICBjb25zdCBub3cgPSBuZXcgRGF0ZSgpOwogICAgY29uc3QgdCA9IGZtdFdJQihub3cpOwogICAgaWYoJCgnI2phbScpKSAkKCcjamFtJykudGV4dENvbnRlbnQgPSB0OwogICAgaWYoJCgnI2phbUhvbWUnKSkgJCgnI2phbUhvbWUnKS50ZXh0Q29udGVudCA9IHQ7CiAgICBpZigkKCcjdGFuZ2dhbCcpKSAkKCcjdGFuZ2dhbCcpLnRleHRDb250ZW50ID0gZm10RGF0ZShub3cpOwogIH07CiAgdGljaygpOyBzZXRJbnRlcnZhbCh0aWNrLCAxMDAwKTsKfQoKLy8gPT09PT0gTE9HSU4gPT09PT0KJCgnI2xvZ2luRm9ybScpLmFkZEV2ZW50TGlzdGVuZXIoJ3N1Ym1pdCcsIGFzeW5jIGUgPT4gewogIGUucHJldmVudERlZmF1bHQoKTsKICAkKCcjbG9naW5FcnJvcicpLmNsYXNzTGlzdC5hZGQoJ2hpZGRlbicpOwogIGNvbnN0IHVzZXJuYW1lID0gJCgnI3VzZXJuYW1lJykudmFsdWUudHJpbSgpOwogIGNvbnN0IHBhc3N3b3JkID0gJCgnI3Bhc3N3b3JkJykudmFsdWU7CiAgdHJ5IHsKICAgIGNvbnN0IHIgPSBhd2FpdCBhcGkoe2FjdGlvbjonbG9naW4nLCB1c2VybmFtZSwgcGFzc3dvcmR9KTsKICAgIGlmKHIuc3RhdHVzIT09J3N1Y2Nlc3MnKSB0aHJvdyBuZXcgRXJyb3Ioci5tZXNzYWdlKTsKICAgIHVzZXIgPSB7Li4uci5kYXRhLCB1c2VybmFtZSwgcGFzc3dvcmR9OwogICAgbG9jYWxTdG9yYWdlLnNldEl0ZW0oJ2Fic2Vuc2lfdXNlcicsIEpTT04uc3RyaW5naWZ5KHVzZXIpKTsKICAgIGluaXRIb21lKCk7CiAgfSBjYXRjaChlcnIpIHsKICAgICQoJyNsb2dpbkVycm9yJykudGV4dENvbnRlbnQgPSBlcnIubWVzc2FnZTsgJCgnI2xvZ2luRXJyb3InKS5jbGFzc0xpc3QucmVtb3ZlKCdoaWRkZW4nKTsKICB9Cn0pOwoKZnVuY3Rpb24gaW5pdEhvbWUoKSB7CiAgc2hvdygnaG9tZVZpZXcnKTsKICAkKCcjbmFtYUhvbWUnKS50ZXh0Q29udGVudCA9IHVzZXIubmFtYTsKICBpZih1c2VyLmZvdG8gJiYgdXNlci5mb3RvLnN0YXJ0c1dpdGgoJ2h0dHAnKSkgJCgnI2F2YXRhckhvbWUnKS5zcmMgPSB1c2VyLmZvdG87CiAgc3RhcnRDbG9ja3MoKTsKfQoKJCgnI2xvZ291dEJ0bicpLmFkZEV2ZW50TGlzdGVuZXIoJ2NsaWNrJywgKCkgPT4geyBsb2NhbFN0b3JhZ2UucmVtb3ZlSXRlbSgnYWJzZW5zaV91c2VyJyk7IGxvY2F0aW9uLnJlbG9hZCgpOyB9KTsKCi8vID09PT09IE5BViA9PT09PQokKCcjY2FyZEFic2Vuc2knKS5hZGRFdmVudExpc3RlbmVyKCdjbGljaycsICgpID0+IHsgc2hvdygnYWJzZW5zaVZpZXcnKTsgbG9hZFRvZGF5KCk7IH0pOwokKCcjY2FyZFJla2FwJykuYWRkRXZlbnRMaXN0ZW5lcignY2xpY2snLCAoKSA9PiB7IHNob3coJ3Jla2FwVmlldycpOyBsb2FkUmVrYXAoKTsgfSk7CmRvY3VtZW50LnF1ZXJ5U2VsZWN0b3JBbGwoJ1tkYXRhLWJhY2tdJykuZm9yRWFjaChiID0+IGIuYWRkRXZlbnRMaXN0ZW5lcignY2xpY2snLCAoKSA9PiBzaG93KCdob21lVmlldycpKSk7CgovLyA9PT09PSBBQlNFTlNJID09PT09CmFzeW5jIGZ1bmN0aW9uIGxvYWRUb2RheSgpIHsKICB0cnkgewogICAgY29uc3QgYWJzID0gYXdhaXQgYXBpKHthY3Rpb246J2dldEFic2Vuc2knLCB1c2VybmFtZTp1c2VyLnVzZXJuYW1lfSk7CiAgICBjb25zdCBkID0gbmV3IERhdGUobmV3IERhdGUoKS50b0xvY2FsZVN0cmluZygnZW4tVVMnLHt0aW1lWm9uZTonQXNpYS9KYWthcnRhJ30pKS5nZXREYXRlKCk7CiAgICBjb25zdCBkYXRhID0gKGFicy5kYXRhPy5hYnNlbnNpfHx7fSlbZF18fHt9OwogICAgJCgnI3RpbWVJbicpLnRleHRDb250ZW50ID0gZGF0YS5pbiB8fCAnLSc7CiAgICAkKCcjdGltZU91dCcpLnRleHRDb250ZW50ID0gZGF0YS5vdXQgfHwgJy0nOwogICAgJCgnI2J0bkluJykuZGlzYWJsZWQgPSAhIWRhdGEuaW47ICQoJyNidG5PdXQnKS5kaXNhYmxlZCA9ICEhZGF0YS5vdXQ7CiAgICAkKCcjYnRuSW4nKS5jbGFzc0xpc3QudG9nZ2xlKCdvcGFjaXR5LTQwJywgISFkYXRhLmluKTsKICAgICQoJyNidG5PdXQnKS5jbGFzc0xpc3QudG9nZ2xlKCdvcGFjaXR5LTQwJywgISFkYXRhLm91dCk7CiAgfSBjYXRjaChlKXsgY29uc29sZS5lcnJvcihlKTsgfQp9CgokKCcjYnRuSW4nKS5hZGRFdmVudExpc3RlbmVyKCdjbGljaycsICgpID0+IG9wZW5DYW1lcmEoJ2luJykpOwokKCcjYnRuT3V0JykuYWRkRXZlbnRMaXN0ZW5lcignY2xpY2snLCAoKSA9PiBvcGVuQ2FtZXJhKCdvdXQnKSk7CgovLyA9PT09PSBDQU1FUkEgV0lUSCBXQVRFUk1BUksgPT09PT0KYXN5bmMgZnVuY3Rpb24gb3BlbkNhbWVyYSh0eXBlKSB7CiAgY3VycmVudFR5cGUgPSB0eXBlOwogICQoJyNjYW1Nb2RhbCcpLmNsYXNzTGlzdC5yZW1vdmUoJ2hpZGRlbicpOyAkKCcjY2FtTW9kYWwnKS5jbGFzc0xpc3QuYWRkKCdmbGV4Jyk7CiAgdHJ5IHsKICAgIHN0cmVhbSA9IGF3YWl0IG5hdmlnYXRvci5tZWRpYURldmljZXMuZ2V0VXNlck1lZGlhKHsgdmlkZW86eyBmYWNpbmdNb2RlOid1c2VyJywgd2lkdGg6e2lkZWFsOjcyMH0gfSwgYXVkaW86ZmFsc2UgfSk7CiAgICAkKCcjdmlkZW8nKS5zcmNPYmplY3QgPSBzdHJlYW07CiAgfSBjYXRjaChlKSB7IGFsZXJ0KCdLYW1lcmEgdGlkYWsgYmlzYSBkaWFrc2VzJyk7IGNsb3NlQ2FtZXJhKCk7IH0KfQpmdW5jdGlvbiBjbG9zZUNhbWVyYSgpIHsKICAkKCcjY2FtTW9kYWwnKS5jbGFzc0xpc3QuYWRkKCdoaWRkZW4nKTsgJCgnI2NhbU1vZGFsJykuY2xhc3NMaXN0LnJlbW92ZSgnZmxleCcpOwogIGlmKHN0cmVhbSl7IHN0cmVhbS5nZXRUcmFja3MoKS5mb3JFYWNoKHQ9PnQuc3RvcCgpKTsgc3RyZWFtPW51bGw7IH0KfQokKCcjY2FuY2VsQ2FtJykuYWRkRXZlbnRMaXN0ZW5lcignY2xpY2snLCBjbG9zZUNhbWVyYSk7CgokKCcjc25hcEJ0bicpLmFkZEV2ZW50TGlzdGVuZXIoJ2NsaWNrJywgYXN5bmMgKCkgPT4gewogIGNvbnN0IHZpZGVvID0gJCgnI3ZpZGVvJyk7CiAgY29uc3QgY2FudmFzID0gJCgnI2NhbnZhcycpOwogIGNvbnN0IHcgPSA3MjA7IGNvbnN0IGggPSB2aWRlby52aWRlb0hlaWdodCAqICh3IC8gdmlkZW8udmlkZW9XaWR0aCk7CiAgY2FudmFzLndpZHRoID0gdzsgY2FudmFzLmhlaWdodCA9IGg7CiAgY29uc3QgY3R4ID0gY2FudmFzLmdldENvbnRleHQoJzJkJyk7CiAgY3R4LmRyYXdJbWFnZSh2aWRlbywwLDAsdyxoKTsKICAKICAvLyBXYXRlcm1hcmsgVGltZU1hcmsgc3R5bGUKICBjb25zdCBub3cgPSBuZXcgRGF0ZSgpOwogIGNvbnN0IHRpbWVTdHIgPSBmbXRXSUIobm93KTsKICBjb25zdCBkYXRlU3RyID0gZm10RGF0ZShub3cpOwogIGN0eC5maWxsU3R5bGUgPSAncmdiYSgwLDAsMCwwLjU1KSc7IGN0eC5maWxsUmVjdCgwLCBoLTkwLCB3LCA5MCk7CiAgY3R4LmZpbGxTdHlsZSA9ICcjZmZmJzsgY3R4LmZvbnQgPSAnYm9sZCAyOHB4IE91dGZpdCc7IGN0eC5maWxsVGV4dChgJHt1c2VyLm5hbWF9IC0gJHtjdXJyZW50VHlwZS50b1VwcGVyQ2FzZSgpfWAsIDIwLCBoLTU1KTsKICBjdHguZm9udCA9ICcyMHB4IE91dGZpdCc7IGN0eC5maWxsVGV4dChgJHtkYXRlU3RyfSAke3RpbWVTdHJ9IFdJQmAsIDIwLCBoLTI1KTsKICBjdHguZmlsbFN0eWxlID0gJ3JnYmEoMTQsMTY1LDIzMywwLjkpJzsgY3R4LmZpbGxSZWN0KHctMTIwLCAyMCwgMTAwLCAzNik7IGN0eC5maWxsU3R5bGU9JyNmZmYnOyBjdHguZm9udD0nYm9sZCAxNnB4IE91dGZpdCc7IGN0eC5maWxsVGV4dCgnVkFMSUQnLCB3LTk1LCA0Myk7CiAgCiAgY29uc3QgZGF0YVVybCA9IGNhbnZhcy50b0RhdGFVUkwoJ2ltYWdlL2pwZWcnLCAwLjc1KTsgLy8ga2VjaWwgdGFwaSBqZWxhcwogIGNsb3NlQ2FtZXJhKCk7CiAgYXdhaXQgZG9BYnNlbihjdXJyZW50VHlwZSwgZGF0YVVybCk7Cn0pOwoKYXN5bmMgZnVuY3Rpb24gZG9BYnNlbih0eXBlLCBwaG90bykgewogICQoJyNzdGF0dXNNc2cnKS50ZXh0Q29udGVudCA9ICdNZW55aW1wYW4uLi4nOwogIHRyeSB7CiAgICAvLyBnZXQgbG9jYXRpb24gKG9wdGlvbmFsKQogICAgbGV0IGxhdD1udWxsLGxuZz1udWxsOwogICAgdHJ5IHsgY29uc3QgcG9zID0gYXdhaXQgbmV3IFByb21pc2UoKHJlcyxyZWopPT5uYXZpZ2F0b3IuZ2VvbG9jYXRpb24uZ2V0Q3VycmVudFBvc2l0aW9uKHJlcyxyZWose3RpbWVvdXQ6MzAwMH0pKTsgbGF0PXBvcy5jb29yZHMubGF0aXR1ZGU7IGxuZz1wb3MuY29vcmRzLmxvbmdpdHVkZTsgfSBjYXRjaHt9CiAgICAKICAgIGNvbnN0IHIgPSBhd2FpdCBhcGkoe2FjdGlvbjonYWJzZW4nLCB1c2VybmFtZTp1c2VyLnVzZXJuYW1lLCB0eXBlLCBwaG90bywgbGF0LCBsbmd9KTsKICAgIGlmKHIuc3RhdHVzIT09J3N1Y2Nlc3MnKSB0aHJvdyBuZXcgRXJyb3Ioci5tZXNzYWdlKTsKICAgICQoJyNzdGF0dXNNc2cnKS50ZXh0Q29udGVudCA9IGBCZXJoYXNpbCAke3R5cGU9PT0naW4nPydNYXN1ayc6J1B1bGFuZyd9ICR7ci5kYXRhLnRpbWV9YDsKICAgIGlmKG5hdmlnYXRvci52aWJyYXRlKSBuYXZpZ2F0b3IudmlicmF0ZSgzMCk7CiAgICBhd2FpdCBsb2FkVG9kYXkoKTsKICB9IGNhdGNoKGVycikgewogICAgJCgnI3N0YXR1c01zZycpLnRleHRDb250ZW50ID0gZXJyLm1lc3NhZ2UgfHwgJ0dhZ2FsJzsKICB9CiAgc2V0VGltZW91dCgoKT0+JCgnI3N0YXR1c01zZycpLnRleHRDb250ZW50PScnLDQwMDApOwp9CgovLyA9PT09PSBSRUtBUCA9PT09PQphc3luYyBmdW5jdGlvbiBsb2FkUmVrYXAoKSB7CiAgY29uc3Qgbm93ID0gbmV3IERhdGUoKTsKICBjb25zdCBtID0gbm93LnRvTG9jYWxlU3RyaW5nKCdpZC1JRCcse3RpbWVab25lOidBc2lhL0pha2FydGEnLCBtb250aDonbG9uZyd9KTsKICBjb25zdCB5ID0gbm93LnRvTG9jYWxlU3RyaW5nKCdpZC1JRCcse3RpbWVab25lOidBc2lhL0pha2FydGEnLCB5ZWFyOidudW1lcmljJ30pOwogICQoJyNyZWthcFRpdGxlJykudGV4dENvbnRlbnQgPSBgUmVrYXAgJHttfSAke3l9YDsKICAKICB0cnkgewogICAgY29uc3QgcmVrID0gYXdhaXQgYXBpKHthY3Rpb246J2dldFJla2FwJywgdXNlcm5hbWU6dXNlci51c2VybmFtZX0pOwogICAgY29uc3QgcmVrYXAgPSByZWsuZGF0YT8ucmVrYXAgfHwge307CiAgICBjb25zdCB0Ym9keSA9ICQoJyNyZWthcEJvZHknKTsgdGJvZHkuaW5uZXJIVE1MID0gJyc7CiAgICBsZXQgaGFkaXIgPSAwOwogICAgZm9yKGxldCBpPTE7aTw9MzE7aSsrKXsKICAgICAgY29uc3QgciA9IHJla2FwW2ldfHx7fTsKICAgICAgaWYoci5pbikgaGFkaXIrKzsKICAgICAgY29uc3QgdHIgPSBkb2N1bWVudC5jcmVhdGVFbGVtZW50KCd0cicpOwogICAgICB0ci5jbGFzc05hbWU9J2JvcmRlci10IGJvcmRlci13aGl0ZS81IGhvdmVyOmJnLXdoaXRlLzUnOwogICAgICB0ci5pbm5lckhUTUwgPSBgPHRkIGNsYXNzPSJwLTIuNSB0ZXh0LXdoaXRlLzcwIj4ke1N0cmluZyhpKS5wYWRTdGFydCgyLCcwJyl9PC90ZD4KICAgICAgICA8dGQgY2xhc3M9InAtMi41IHRleHQtY2VudGVyIGZvbnQtbW9ubyI+JHtyLmlufHwnLSd9PC90ZD4KICAgICAgICA8dGQgY2xhc3M9InAtMi41IHRleHQtY2VudGVyIGZvbnQtbW9ubyI+JHtyLm91dHx8Jy0nfTwvdGQ+YDsKICAgICAgdGJvZHkuYXBwZW5kQ2hpbGQodHIpOwogICAgfQogICAgJCgnI3RvdGFsS2VyamEnKS50ZXh0Q29udGVudCA9IGBUb3RhbCBoYWRpcjogJHtoYWRpcn0gaGFyaWA7CiAgfSBjYXRjaChlKXsgY29uc29sZS5lcnJvcihlKTsgfQp9CiQoJyNyZWZyZXNoQnRuJykuYWRkRXZlbnRMaXN0ZW5lcignY2xpY2snLCBsb2FkUmVrYXApOwoKLy8gPT09PT0gSU5JVCA9PT09PQp3aW5kb3cuYWRkRXZlbnRMaXN0ZW5lcignbG9hZCcsICgpID0+IHsKICBjb25zdCBzYXZlZCA9IGxvY2FsU3RvcmFnZS5nZXRJdGVtKCdhYnNlbnNpX3VzZXInKTsKICBpZihzYXZlZCl7IHVzZXIgPSBKU09OLnBhcnNlKHNhdmVkKTsgaW5pdEhvbWUoKTsgfSBlbHNlIHsgc2hvdygnbG9naW5WaWV3Jyk7IH0KICBpZignc2VydmljZVdvcmtlcicgaW4gbmF2aWdhdG9yKXsgbmF2aWdhdG9yLnNlcnZpY2VXb3JrZXIucmVnaXN0ZXIoJ3N3LmpzJyk7IH0KfSk7Cg=="></script>
 </body>
 </html>
