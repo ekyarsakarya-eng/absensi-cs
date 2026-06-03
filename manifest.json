@@ -1,11 +1,12 @@
 {
   "name": "Absensi Karyawan Terpadu",
-  "short_name": "Absensi Terpadu",
+  "short_name": "Absensi",
   "description": "Aplikasi absensi modern dengan Google Sheets",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#020617",
   "theme_color": "#0ea5e9",
+  "version": "1.0",
   "icons": [
     {
       "src": "icon-192.png",
