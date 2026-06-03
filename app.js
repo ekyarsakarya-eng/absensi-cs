@@ -1,5 +1,5 @@
 // ===== CONFIG =====
-const API_URL = 'https://script.google.com/macros/s/AKfycbwKWbxAmhxrZiA6o8xKQjEzyiR7GRZuimvh2KxcVFbf_CGfGqaQOegOOMQR-c9AYNqk/exec'; // <-- paste URL dari GAS deploy
+const API_URL = 'https://script.google.com/macros/s/AKfycbwKWbxAmhxrZiA6o8xKQjEzyiR7GRZuimvh2KxcVFbf_CGfGqaQOegOOMQR-c9AYNqk/exec';
 
 let user = null;
 let currentType = null;
