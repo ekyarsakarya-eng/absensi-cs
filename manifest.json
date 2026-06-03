@@ -1,6 +1,6 @@
 {
-  "name": "Absensi Karyawan",
-  "short_name": "Absensi",
+  "name": "Absensi Karyawan Terpadu",
+  "short_name": "Absensi Terpadu",
   "description": "Aplikasi absensi modern dengan Google Sheets",
   "start_url": "./index.html",
   "display": "standalone",
