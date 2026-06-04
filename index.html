@@ -23,8 +23,8 @@
     <div id="loginView" class="glass rounded-[2rem] p-8 shadow-2xl border border-white/10">
       <div class="flex flex-col items-center mb-6">
         <img src="icon-192.png" class="w-20 h-20 rounded-2xl shadow-lg mb-3" alt="logo">
-        <h1 class="text-2xl font-semibold">Absensi Karyawan</h1>
-        <p class="text-white/60 text-sm">Masuk dengan akun Anda</p>
+        <h1 class="text-[28px] font-semibold leading-tight">Absensi Karyawan<br>Terpadu</h1>
+<p class="text-white/50 text-[13px] italic mt-1">Integrated Management System</p>
       </div>
       <form id="loginForm" class="space-y-4">
         <div>
@@ -34,6 +34,7 @@
         <div>
           <label class="text-sm text-white/70">Password</label>
           <input id="password" type="password" class="w-full mt-1 px-4 py-3 rounded-xl bg-white/10 border border-white/10 outline-none focus:ring-2 focus:ring-sky-500" required>
+        <button id="togglePass" type="button" class="absolute right-3 top-[34px]">👁️</button>
         </div>
         <button class="btn w-full py-3 rounded-xl bg-sky-500 hover:bg-sky-400 font-medium shadow-lg shadow-sky-900/30">Masuk</button>
         <p id="loginError" class="text-red-400 text-sm text-center hidden"></p>
