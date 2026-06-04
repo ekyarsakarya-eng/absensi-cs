@@ -7,10 +7,14 @@
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0ea5e9">
 <link rel="icon" href="icon-192.png">
-<script src="https://cdn.tailwindcss.com"></script>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<!-- SPEED -->
+<link rel="preconnect" href="https://script.google.com">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+
 <style>
-body{font-family:'Outfit',sans-serif;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Outfit,sans-serif;-webkit-tap-highlight-color:transparent}
 .glass{backdrop-filter:blur(20px);background:rgba(255,255,255,.06)}
 .btn{transition:all.2s}.btn:active{transform:scale(.96)}
 html{font-size:16px}
@@ -26,7 +30,7 @@ html{font-size:16px}
     <div class="w-full glass rounded-[2rem] p-8 border border-white/10">
       <div class="text-center mb-7"><img src="icon-192.png" class="w-24 h-24 mx-auto rounded-3xl mb-4 shadow-xl"><h1 class="text-2xl font-semibold">Absensi Karyawan<br>Terpadu</h1><p class="text-white/50 text-xs italic mt-1">Integrated Management System</p></div>
       <form id="loginForm" class="space-y-4"><div><label class="text-xs text-white/70">Username</label><input id="username" class="w-full mt-1 px-4 py-3.5 rounded-2xl bg-white/10 border border-white/10 outline-none text-base" required></div><div class="relative"><label class="text-xs text-white/70">Password</label><input id="password" type="password" class="w-full mt-1 px-4 py-3.5 pr-11 rounded-2xl bg-white/10 border border-white/10 outline-none text-base" required><button id="togglePass" type="button" class="absolute right-3 top-9 text-xl">👁</button></div><button class="w-full py-4 rounded-2xl bg-sky-500 font-medium text-base btn">Masuk</button><p id="loginError" class="text-red-400 text-xs text-center hidden"></p></form>
-      <p class="text-center text-[11px] text-white/30 mt-6">@v1.8 • SMG-2026</p>
+      <p class="text-center text-[11px] text-white/30 mt-6">@v2.1 • SMG-2026</p>
     </div>
   </div>
 
@@ -69,7 +73,7 @@ html{font-size:16px}
         <div><label class="text-xs text-white/60">Alamat</label><textarea id="pfAlamat" rows="2" class="w-full mt-1 px-4 py-3 rounded-2xl bg-white/10 border border-white/10 outline-none"></textarea></div>
         <div><label class="text-xs text-white/60">No Rekening</label><input id="pfNoRek" class="w-full mt-1 px-4 py-3 rounded-2xl bg-white/10 border border-white/10 outline-none"></div>
         <div><label class="text-xs text-white/60">Tempat, Tanggal Lahir</label><input id="pfTtl" placeholder="Semarang, 01-07-1977" class="w-full mt-1 px-4 py-3 rounded-2xl bg-white/10 border border-white/10 outline-none"></div>
-        <div class="pt-2 border-t border-white/10"><label class="text-xs text-white/60">Password Baru</label><div class="relative"><input id="pfPass1" type="password" class="w-full mt-1 px-4 py-3 pr-11 rounded-2xl bg-white/10 border border-white/10 outline-none"><button type="button" data-toggle="pfPass1" class="absolute right-3 top-4 text-lg">👁</button></div></div>
+        <div class="pt-2 border-t border-white/10"><label class="text-xs text-white/60">Password Baru</label><div class="relative"><input id="pfPass1" type="password" class="w-full mt-1 px-4 py-3 pr-11 rounded-2xl bg-white/10 border border-white/10 outline-none"><button type="button" data-toggle="pfPass1" class="absolute right-3 top-4 text-lg">👁</button></div>
         <div><label class="text-xs text-white/60">Ulangi Password</label><div class="relative"><input id="pfPass2" type="password" class="w-full mt-1 px-4 py-3 pr-11 rounded-2xl bg-white/10 border border-white/10 outline-none"><button type="button" data-toggle="pfPass2" class="absolute right-3 top-4 text-lg">👁</button></div></div>
         <button class="w-full py-4 rounded-2xl bg-sky-500 font-medium mt-4 btn">Simpan Perubahan</button>
         <p id="profileMsg" class="text-center text-xs h-4 mt-2"></p>
@@ -82,12 +86,7 @@ html{font-size:16px}
 
 <script>
 if('serviceWorker' in navigator) navigator.serviceWorker.register('./service-worker.js',{scope:'./'});
-let deferredPrompt; const isStandalone = () => window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredPrompt = e; forceInstall(); });
-function forceInstall(){ if(isStandalone()) return; document.getElementById('app').innerHTML = `<div class="min-h-screen flex flex-col justify-center items-center px-6 text-center bg-slate-950"><img src="./icon-192.png" class="w-28 h-28 rounded-3xl mb-6 shadow-2xl"><h1 class="text-2xl font-semibold mb-2">Install Aplikasi Dulu</h1><p class="text-white/70 text-sm mb-6 max-w-xs">Absensi hanya bisa dipakai lewat aplikasi.</p><button id="btnInstall" class="w-full max-w-xs py-4 rounded-2xl bg-sky-500 font-medium text-base mb-3">📲 Install Sekarang</button></div>`; document.getElementById('btnInstall').onclick = async () => { if(deferredPrompt){ deferredPrompt.prompt(); const {outcome} = await deferredPrompt.userChoice; if(outcome === 'accepted') location.reload(); } }; }
-window.addEventListener('load', () => { setTimeout(() => { if(!isStandalone()) forceInstall(); }, 500); });
-window.addEventListener('appinstalled', () => location.reload());
 </script>
-<script src="app.js?v=19"></script>
+<script src="app.js?v=21" defer></script>
 </body>
 </html>
