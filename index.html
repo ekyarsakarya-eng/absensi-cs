@@ -46,10 +46,46 @@ html{font-size:16px}
 
 <script>
 if('serviceWorker' in navigator) navigator.serviceWorker.register('./service-worker.js',{scope:'./'});
+
 let deferredPrompt;
-window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;});
-function checkInstall(){const standalone=window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone;if(!standalone&&deferredPrompt){document.getElementById('installBanner').innerHTML=`<div class="glass rounded-3xl p-4 border border-amber-500/30 text-center"><p class="text-sm mb-2">📲 Install aplikasi dulu untuk absen</p><button id="installNow" class="px-5 py-2.5 bg-amber-500 text-black rounded-xl text-sm font-medium">Install Sekarang</button></div>`;document.getElementById('cardAbsensi').style.opacity='0.4';document.getElementById('cardAbsensi').style.pointerEvents='none';document.getElementById('installNow').onclick=async()=>{deferredPrompt.prompt();await deferredPrompt.userChoice;};}}
-window.addEventListener('appinstalled',()=>location.reload());
+const isStandalone = () => window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  forceInstall(); // langsung paksa begitu prompt siap
+});
+
+function forceInstall(){
+  if(isStandalone()) return; // sudah install, aman
+  
+  // TUTUP SEMUA VIEW, tampilkan overlay full
+  document.getElementById('app').innerHTML = `
+  <div class="min-h-screen flex flex-col justify-center items-center px-6 text-center bg-slate-950">
+    <img src="./icon-192.png" class="w-28 h-28 rounded-3xl mb-6 shadow-2xl">
+    <h1 class="text-2xl font-semibold mb-2">Install Aplikasi Dulu</h1>
+    <p class="text-white/70 text-sm mb-6 max-w-xs">Absensi hanya bisa dipakai lewat aplikasi. Tidak bisa lewat browser.</p>
+    <button id="btnInstall" class="w-full max-w-xs py-4 rounded-2xl bg-sky-500 font-medium text-base mb-3">📲 Install Sekarang</button>
+    <p class="text-[11px] text-white/40">Setelah install, buka dari ikon di home screen</p>
+  </div>`;
+
+  document.getElementById('btnInstall').onclick = async () => {
+    if(deferredPrompt){
+      deferredPrompt.prompt();
+      const {outcome} = await deferredPrompt.userChoice;
+      if(outcome === 'accepted') location.reload();
+    } else {
+      // fallback kalau browser belum kasih prompt (iOS / belum HTTPS)
+      alert('Ketuk menu ⋮ di Chrome > "Tambahkan ke layar utama" / "Install aplikasi"');
+    }
+  };
+}
+
+// Jalankan cek saat load (untuk yang sudah pernah install)
+window.addEventListener('load', () => {
+  setTimeout(() => { if(!isStandalone()) forceInstall(); }, 500);
+});
+window.addEventListener('appinstalled', () => location.reload());
 </script>
 <script src="app.js?v=17"></script>
 </body>
