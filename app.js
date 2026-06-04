@@ -7,7 +7,7 @@ async function api(p){const r=await fetch(API_URL,{method:'POST',headers:{'Conte
 function show(i){document.querySelectorAll('#app>div').forEach(v=>v.classList.add('hidden'));$('#'+i).classList.remove('hidden');}
 $('#loginForm').onsubmit=async e=>{e.preventDefault();try{user=await api({action:'login',username:$('#username').value,password:$('#password').value});localStorage.absensi_user=JSON.stringify(user);init()}catch(err){$('#loginError').textContent=err.message;$('#loginError').classList.remove('hidden')}};
 $('#togglePass').onclick=()=>{const p=$('#password');p.type=p.type==='password'?'text':'password';$('#togglePass').textContent=p.type==='password'?'👁️':'🙈';};
-function init(){show('homeView');$('#namaHome').textContent=user.nama;if(user.foto)$('#avatarHome').src=user.foto;tick();setInterval(tick,1000);checkInstall();}
+function init(){show('homeView');$('#namaHome').textContent=user.nama;if(user.foto)$('#avatarHome').src=user.foto;tick();setInterval(tick,1000);setTimeout(checkInstall,500);}
 function tick(){const n=new Date();$('#jamHomeBig').textContent=fW(n).replace(/:/g,'.');$('#tanggalHomeBig').textContent=fD(n);$('#hariHome').textContent=fD(n);$('#jam').textContent=fW(n);$('#tanggal').textContent=fD(n);}
 $('#logoutBtn').onclick=()=>{localStorage.removeItem('absensi_user');location.reload()};
 $('#cardAbsensi').onclick=()=>{show('absensiView');loadT()};$('#cardRekap').onclick=()=>{show('rekapView');loadR()};document.querySelectorAll('[data-back]').forEach(b=>b.onclick=()=>show('homeView'));
