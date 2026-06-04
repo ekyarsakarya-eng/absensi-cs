@@ -11,12 +11,16 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Outfit,sans-serif;-webkit-tap-highlight-color:transparent}
-.glass{backdrop-filter:blur(10px);background:rgba(255,255,255,.92);box-shadow:0 6px 20px rgba(15,23,42,.08);border:1px solid #cbd5e1}
-.btn{transition:all.15s}.btn:active{transform:scale(.97)}
+.glass{backdrop-filter:blur(12px);background:rgba(255,255,255,.92);box-shadow:0 8px 24px rgba(0,0,0,.08);border:1px solid #cbd5e1}
+.btn{transition:all.2s}.btn:active{transform:scale(.97)}
 html{font-size:18px}
-@media(max-width:380px){html{font-size:17px}}
-#jamHomeBig{font-size:clamp(3rem,15vw,4.2rem);font-weight:300}
-input,textarea,button{font-weight:500}
+#jamHomeBig{font-size:clamp(2.8rem,14vw,4rem)}
+/* BESARKAN & TEBALKAN SEMUA TULISAN UNTUK ORANG TUA */
+label, input, textarea, button, p, span, th, td {font-weight:600!important}
+.text-xs{font-size:0.9rem!important}
+.text-sm{font-size:1rem!important}
+.text-base{font-size:1.1rem!important}
+h1,h3{font-weight:700!important}
 </style>
 </head>
 <body class="min-h-screen bg-gradient-to-b from-[#dbe4f0] to-[#e8eef7] text-slate-900">
@@ -24,60 +28,63 @@ input,textarea,button{font-weight:500}
 
   <div id="loginView" class="flex-1 flex flex-col justify-center px-6">
     <div class="w-full glass rounded-[2rem] p-8">
-      <div class="text-center mb-8"><img src="icon-192.png" loading="lazy" class="w-28 h-28 mx-auto rounded-3xl mb-4 shadow-md"><h1 class="text-[1.7rem] font-bold leading-tight">Absensi Karyawan<br>Terpadu</h1><p class="text-slate-600 text-sm font-semibold mt-2">Integrated Management System</p></div>
-      <form id="loginForm" class="space-y-5"><div><label class="text-base font-bold text-slate-700">Username</label><input id="username" class="w-full mt-2 px-5 py-4 rounded-2xl bg-slate-50 border-2 border-slate-300 outline-none text-lg font-medium" required></div><div class="relative"><label class="text-base font-bold text-slate-700">Password</label><input id="password" type="password" class="w-full mt-2 px-5 py-4 pr-12 rounded-2xl bg-slate-50 border-2 border-slate-300 outline-none text-lg font-medium" required><button id="togglePass" type="button" class="absolute right-4 top-11 text-2xl opacity-70">👁</button></div><button class="w-full py-5 rounded-2xl bg-sky-600 hover:bg-sky-700 text-white font-bold text-lg btn">Masuk</button><p id="loginError" class="text-red-600 text-sm font-semibold text-center hidden"></p></form>
+      <div class="text-center mb-7"><img src="icon-192.png" class="w-24 h-24 mx-auto rounded-3xl mb-4 shadow-lg"><h1 class="text-2xl text-slate-900">Absensi Karyawan<br>Terpadu</h1><p class="text-slate-600 text-xs italic mt-1">Integrated Management System</p></div>
+      <form id="loginForm" class="space-y-4"><div><label class="text-sm text-slate-700">Username</label><input id="username" class="w-full mt-1 px-4 py-3.5 rounded-2xl bg-slate-50 border-2 border-slate-300 outline-none text-base text-slate-900" required></div><div class="relative"><label class="text-sm text-slate-700">Password</label><input id="password" type="password" class="w-full mt-1 px-4 py-3.5 pr-11 rounded-2xl bg-slate-50 border-2 border-slate-300 outline-none text-base" required><button id="togglePass" type="button" class="absolute right-3 top-9 text-xl opacity-70">👁</button></div><button class="w-full py-4 rounded-2xl bg-sky-600 hover:bg-sky-700 text-white text-base btn">Masuk</button><p id="loginError" class="text-red-600 text-xs text-center hidden"></p></form>
+      <p class="text-center text-[11px] text-slate-500 mt-6">@v2.1 • SMG-2026</p>
     </div>
   </div>
 
-  <div id="homeView" class="hidden flex-1 flex flex-col px-5 py-6 gap-5">
-    <div class="glass rounded-3xl px-5 py-5 flex items-center justify-between">
-      <div class="flex items-center gap-4">
-        <img id="avatarHome" src="icon-192.png" loading="lazy" class="w-14 h-14 rounded-2xl bg-slate-200 object-cover ring-2 ring-slate-300">
-        <div><p id="namaHome" class="text-lg font-bold">-</p><p id="hariHome" class="text-sm font-bold text-sky-700">-</p></div>
+  <div id="homeView" class="hidden flex-1 flex flex-col px-5 py-6 gap-4">
+    <div class="glass rounded-3xl px-5 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <img id="avatarHome" src="icon-192.png" class="w-12 h-12 rounded-2xl bg-slate-200 object-cover">
+        <div><p id="namaHome" class="text-base">-</p><p id="hariHome" class="text-xs text-sky-700">-</p></div>
       </div>
-      <button id="logoutBtn" class="text-sm font-bold px-4 py-2.5 rounded-xl bg-slate-200 text-slate-700">Keluar</button>
+      <button id="logoutBtn" class="text-xs px-3 py-2 rounded-xl bg-slate-200 text-slate-700">Keluar</button>
     </div>
-    <div class="glass rounded-3xl p-8 text-center flex-1 flex flex-col justify-center"><p id="jamHomeBig" class="tracking-wider text-slate-900">--.--.--</p><p id="tanggalHomeBig" class="text-slate-600 text-base font-semibold mt-4">-</p></div>
-    <div class="grid grid-cols-3 gap-4 pb-4">
-      <button id="cardAbsensi" class="glass rounded-3xl p-6 flex flex-col items-center gap-3"><img src="icon-absensi.png" loading="lazy" class="w-14 h-14"><span class="text-base font-bold text-slate-800">Absensi</span></button>
-      <button id="cardRekap" class="glass rounded-3xl p-6 flex flex-col items-center gap-3"><img src="icon-rekap.png" loading="lazy" class="w-14 h-14"><span class="text-base font-bold text-slate-800">Rekap</span></button>
-      <button id="cardProfil" class="glass rounded-3xl p-6 flex flex-col items-center gap-3"><img src="icon-profile.png" loading="lazy" class="w-14 h-14"><span class="text-base font-bold text-slate-800">Profil</span></button>
+    <div class="glass rounded-3xl p-8 text-center flex-1 flex flex-col justify-center"><p id="jamHomeBig" class="font-light tracking-widest leading-none text-slate-900">--.--.--</p><p id="tanggalHomeBig" class="text-slate-600 text-sm mt-3">-</p></div>
+    <div class="grid grid-cols-3 gap-3 pb-4">
+      <button id="cardAbsensi" class="glass rounded-3xl p-5 flex flex-col items-center gap-2 active:scale-95 transition"><img src="icon-absensi.png" class="w-12 h-12"><span class="text-xs text-slate-800">Absensi</span></button>
+      <button id="cardRekap" class="glass rounded-3xl p-5 flex flex-col items-center gap-2 active:scale-95 transition"><img src="icon-rekap.png" class="w-12 h-12"><span class="text-xs text-slate-800">Rekap</span></button>
+      <button id="cardProfil" class="glass rounded-3xl p-5 flex flex-col items-center gap-2 active:scale-95 transition"><img src="icon-profile.png" class="w-12 h-12"><span class="text-xs text-slate-800">Profil</span></button>
     </div>
   </div>
 
-  <div id="absensiView" class="hidden flex-1 flex flex-col px-5 py-6"><button data-back class="mb-4 text-base font-bold text-slate-600 self-start">← Kembali</button><div class="glass rounded-3xl p-7 text-center flex-1 flex flex-col justify-center"><p id="jam" class="text-6xl font-light text-slate-900">--:--:--</p><p id="tanggal" class="text-base font-semibold text-slate-600 mt-2">-</p><div class="grid grid-cols-2 gap-5 mt-9"><button id="btnIn" class="py-5 rounded-2xl bg-emerald-600 text-white text-lg font-bold btn">Masuk</button><button id="btnOut" class="py-5 rounded-2xl bg-rose-600 text-white text-lg font-bold btn">Pulang</button></div><p class="text-sm font-semibold text-slate-600 mt-5">In: <span id="timeIn" class="font-mono font-bold">-</span> | Out: <span id="timeOut" class="font-mono font-bold">-</span></p><p id="statusMsg" class="text-sky-700 text-base font-bold h-6 mt-2"></p></div></div>
+  <div id="absensiView" class="hidden flex-1 flex flex-col px-5 py-6"><button data-back class="mb-3 text-sm text-slate-600 self-start">← Kembali</button><div class="glass rounded-3xl p-6 text-center flex-1 flex flex-col justify-center"><p id="jam" class="text-5xl font-light text-slate-900">--:--:--</p><p id="tanggal" class="text-sm text-slate-600 mt-1">-</p><div class="grid grid-cols-2 gap-4 mt-8"><button id="btnIn" class="py-4 rounded-2xl bg-emerald-600 text-white text-base btn">Masuk</button><button id="btnOut" class="py-4 rounded-2xl bg-rose-600 text-white text-base btn">Pulang</button></div><p class="text-xs text-slate-600 mt-4">In: <span id="timeIn" class="font-mono">-</span> | Out: <span id="timeOut" class="font-mono">-</span></p><p id="statusMsg" class="text-sky-700 text-sm h-5 mt-2"></p></div></div>
 
-  <div id="rekapView" class="hidden flex-1 flex flex-col px-5 py-6"><button data-back class="mb-4 text-base font-bold text-slate-600 self-start">← Kembali</button><div class="glass rounded-3xl p-6 flex-1 flex flex-col"><div class="flex justify-between mb-4"><h3 id="rekapTitle" class="text-lg font-bold">Rekap</h3><button id="refreshBtn" class="text-sm font-bold px-4 py-2 bg-slate-200 rounded-xl text-slate-700">Refresh</button></div><div class="flex-1 overflow-auto"><table class="w-full"><thead class="text-slate-600 text-sm font-bold sticky top-0 bg-white/90 backdrop-blur"><tr><th class="text-left py-3">Tgl</th><th>In</th><th>Out</th></tr></thead><tbody id="rekapBody" class="text-base font-medium text-slate-800"></tbody></table></div><p id="totalKerja" class="text-sm font-semibold text-center mt-4 text-slate-600"></p></div></div>
+  <div id="rekapView" class="hidden flex-1 flex flex-col px-5 py-6"><button data-back class="mb-3 text-sm text-slate-600 self-start">← Kembali</button><div class="glass rounded-3xl p-5 flex-1 flex flex-col"><div class="flex justify-between mb-3"><h3 id="rekapTitle" class="text-base">Rekap</h3><button id="refreshBtn" class="text-xs px-3 py-1.5 bg-slate-200 rounded-lg text-slate-700">Refresh</button></div><div class="flex-1 overflow-auto"><table class="w-full text-sm"><thead class="text-slate-600 sticky top-0 bg-white/90 backdrop-blur"><tr><th class="text-left py-2">Tgl</th><th>In</th><th>Out</th></tr></thead><tbody id="rekapBody" class="text-slate-800"></tbody></table></div><p id="totalKerja" class="text-xs text-center mt-3 text-slate-600"></p></div></div>
 
   <div id="profileView" class="hidden flex-1 flex flex-col px-5 py-6">
-    <button data-back class="mb-4 text-base font-bold text-slate-600 self-start">← Kembali</button>
-    <div class="glass rounded-3xl p-7 flex-1 overflow-auto">
-      <h3 class="text-xl font-bold mb-5 text-slate-900">Edit Profil</h3>
-      <div class="flex flex-col items-center mb-6">
+    <button data-back class="mb-3 text-sm text-slate-600 self-start">← Kembali</button>
+    <div class="glass rounded-3xl p-6 flex-1 overflow-auto">
+      <h3 class="text-lg mb-4 text-slate-900">Edit Profil</h3>
+      <div class="flex flex-col items-center mb-5">
         <div class="relative">
-          <img id="profileAvatar" src="icon-192.png" loading="lazy" class="w-28 h-28 rounded-3xl object-cover bg-slate-200 border-2 border-slate-300">
-          <button id="changePhotoBtn" class="absolute -bottom-2 -right-2 w-10 h-10 rounded-xl bg-sky-600 text-white flex items-center justify-center text-xl font-bold">📷</button>
+          <img id="profileAvatar" src="icon-192.png" class="w-24 h-24 rounded-3xl object-cover bg-slate-200 border-2 border-slate-300">
+          <button id="changePhotoBtn" class="absolute -bottom-2 -right-2 w-8 h-8 rounded-xl bg-sky-600 text-white flex items-center justify-center text-lg">📷</button>
           <input type="file" id="photoInput" accept="image/*" class="hidden">
         </div>
-      <form id="profileForm" class="space-y-4">
-        <div><label class="text-base font-bold text-slate-700">Nama</label><input id="pfNama" class="w-full mt-2 px-5 py-4 rounded-2xl bg-slate-100 border-2 border-slate-200 outline-none text-lg font-medium" readonly></div>
-        <div><label class="text-base font-bold text-slate-700">Username</label><input id="pfUsername" class="w-full mt-2 px-5 py-4 rounded-2xl bg-slate-100 border-2 border-slate-200 outline-none text-lg font-medium" readonly></div>
-        <div><label class="text-base font-bold text-slate-700">No HP</label><input id="pfNoHp" class="w-full mt-2 px-5 py-4 rounded-2xl bg-white border-2 border-slate-300 outline-none text-lg font-medium"></div>
-        <div><label class="text-base font-bold text-slate-700">Alamat</label><textarea id="pfAlamat" rows="3" class="w-full mt-2 px-5 py-4 rounded-2xl bg-white border-2 border-slate-300 outline-none text-lg font-medium"></textarea></div>
-        <div><label class="text-base font-bold text-slate-700">No Rekening</label><input id="pfNoRek" class="w-full mt-2 px-5 py-4 rounded-2xl bg-white border-2 border-slate-300 outline-none text-lg font-medium"></div>
-        <div><label class="text-base font-bold text-slate-700">Tempat, Tanggal Lahir</label><input id="pfTtl" class="w-full mt-2 px-5 py-4 rounded-2xl bg-white border-2 border-slate-300 outline-none text-lg font-medium"></div>
-        <div class="pt-3 border-t-2 border-slate-200"><label class="text-base font-bold text-slate-700">Password Baru</label><div class="relative"><input id="pfPass1" type="password" class="w-full mt-2 px-5 py-4 pr-12 rounded-2xl bg-white border-2 border-slate-300 outline-none text-lg font-medium"><button type="button" data-toggle="pfPass1" class="absolute right-4 top-5 text-xl opacity-70">👁</button></div></div>
-        <div><label class="text-base font-bold text-slate-700">Ulangi Password</label><div class="relative"><input id="pfPass2" type="password" class="w-full mt-2 px-5 py-4 pr-12 rounded-2xl bg-white border-2 border-slate-300 outline-none text-lg font-medium"><button type="button" data-toggle="pfPass2" class="absolute right-4 top-5 text-xl opacity-70">👁</button></div></div>
-        <button class="w-full py-5 rounded-2xl bg-sky-600 text-white font-bold text-lg mt-5 btn">Simpan Perubahan</button>
-        <p id="profileMsg" class="text-center text-sm font-semibold h-5 mt-2 text-slate-700"></p>
+      <form id="profileForm" class="space-y-3">
+        <div><label class="text-xs text-slate-700">Nama</label><input id="pfNama" class="w-full mt-1 px-4 py-3 rounded-2xl bg-slate-100 border-2 border-slate-300 outline-none" readonly></div>
+        <div><label class="text-xs text-slate-700">Username</label><input id="pfUsername" class="w-full mt-1 px-4 py-3 rounded-2xl bg-slate-100 border-2 border-slate-300 outline-none" readonly></div>
+        <div><label class="text-xs text-slate-700">No HP</label><input id="pfNoHp" class="w-full mt-1 px-4 py-3 rounded-2xl bg-white border-2 border-slate-300 outline-none"></div>
+        <div><label class="text-xs text-slate-700">Alamat</label><textarea id="pfAlamat" rows="2" class="w-full mt-1 px-4 py-3 rounded-2xl bg-white border-2 border-slate-300 outline-none"></textarea></div>
+        <div><label class="text-xs text-slate-700">No Rekening</label><input id="pfNoRek" class="w-full mt-1 px-4 py-3 rounded-2xl bg-white border-2 border-slate-300 outline-none"></div>
+        <div><label class="text-xs text-slate-700">Tempat, Tanggal Lahir</label><input id="pfTtl" class="w-full mt-1 px-4 py-3 rounded-2xl bg-white border-2 border-slate-300 outline-none"></div>
+        <div class="pt-2 border-t-2 border-slate-200"><label class="text-xs text-slate-700">Password Baru</label><div class="relative"><input id="pfPass1" type="password" class="w-full mt-1 px-4 py-3 pr-11 rounded-2xl bg-white border-2 border-slate-300 outline-none"><button type="button" data-toggle="pfPass1" class="absolute right-3 top-4 text-lg opacity-70">👁</button></div>
+        <div><label class="text-xs text-slate-700">Ulangi Password</label><div class="relative"><input id="pfPass2" type="password" class="w-full mt-1 px-4 py-3 pr-11 rounded-2xl bg-white border-2 border-slate-300 outline-none"><button type="button" data-toggle="pfPass2" class="absolute right-3 top-4 text-lg opacity-70">👁</button></div></div>
+        <button class="w-full py-4 rounded-2xl bg-sky-600 text-white mt-4 btn">Simpan Perubahan</button>
+        <p id="profileMsg" class="text-center text-xs h-4 mt-2 text-slate-700"></p>
       </form>
     </div>
   </div>
 </div>
 
-<div id="camModal" class="fixed inset-0 bg-black/95 hidden items-center justify-center p-4 z-50"><div class="w-full max-w-sm relative"><video id="video" autoplay playsinline class="w-full rounded-3xl bg-black aspect-[3/4] object-cover"></video><div id="camWatermark" class="hidden absolute top-4 left-4 right-4 pointer-events-none"><div class="bg-black/60 rounded-xl px-4 py-2.5 backdrop-blur-sm"><p id="wmNama" class="text-white text-base font-bold">-</p><p class="text-white/80 text-sm font-medium mt-0.5"><span id="wmLokasi">-</span> • <span id="wmWaktu">--.--.--</span></p></div></div><canvas id="canvas" class="hidden"></canvas><div class="flex gap-4 mt-5"><button id="cancelCam" class="flex-1 py-5 rounded-2xl bg-white/20 text-white text-lg font-bold">Batal</button><button id="snapBtn" class="flex-1 py-5 rounded-2xl bg-sky-600 text-white font-bold text-lg">Jepret</button></div></div>
+<div id="camModal" class="fixed inset-0 bg-black/95 hidden items-center justify-center p-4 z-50"><div class="w-full max-w-sm relative"><video id="video" autoplay playsinline class="w-full rounded-3xl bg-black aspect-[3/4] object-cover"></video><div id="camWatermark" class="hidden absolute top-4 left-4 right-4 pointer-events-none"><div class="bg-black/60 rounded-xl px-4 py-2.5 backdrop-blur-sm"><p id="wmNama" class="text-white text-sm">-</p><p class="text-white/80 text-xs mt-0.5"><span id="wmLokasi">-</span> • <span id="wmWaktu">--.--.--</span></p></div><canvas id="canvas" class="hidden"></canvas><div class="flex gap-3 mt-4"><button id="cancelCam" class="flex-1 py-4 rounded-2xl bg-white/20 text-white text-base">Batal</button><button id="snapBtn" class="flex-1 py-4 rounded-2xl bg-sky-600 text-white text-base">Jepret</button></div>
 
-<script>if('serviceWorker'in navigator)navigator.serviceWorker.register('./service-worker.js')</script>
-<script src="app.js?v=22" defer></script>
+<script>
+if('serviceWorker' in navigator) navigator.serviceWorker.register('./service-worker.js',{scope:'./'});
+</script>
+<script src="app.js?v=21" defer></script>
 </body>
 </html>
