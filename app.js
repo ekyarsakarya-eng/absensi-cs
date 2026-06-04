@@ -1,7 +1,12 @@
 const API_URL='https://script.google.com/macros/s/AKfycbwKWbxAmhxrZiA6o8xKQjEzyiR7GRZuimvh2KxcVFbf_CGfGqaQOegOOMQR-c9AYNqk/exec';
 let user=null,cur=null,str=null,userLoc='-',profilePhotoData=null;
 const $=s=>document.querySelector(s);
-const fixFoto=u=>!u?'icon-192.png':u.includes('/file/d/')?'https://drive.google.com/uc?export=view&id='+u.split('/d/')[1].split('/')[0]:u;
+const fixFoto = u => {
+  if(!u) return 'icon-192.png';
+  // ambil ID Drive dari link apapun
+  const id = (u.match(/[-\w]{25,}/) || [])[0];
+  return id? `https://lh3.googleusercontent.com/d/${id}?v=${Date.now()}` : u;
+};
 const fW=d=>new Intl.DateTimeFormat('id-ID',{timeZone:'Asia/Jakarta',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).format(d);
 const fD=d=>new Intl.DateTimeFormat('id-ID',{timeZone:'Asia/Jakarta',weekday:'long',day:'2-digit',month:'long',year:'numeric'}).format(d);
 async function api(p){const r=await fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(p)});const j=await r.json();if(j.error)throw new Error(j.error);return j;}
