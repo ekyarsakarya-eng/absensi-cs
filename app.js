@@ -1,13 +1,14 @@
 const API_URL='https://script.google.com/macros/s/AKfycbwKWbxAmhxrZiA6o8xKQjEzyiR7GRZuimvh2KxcVFbf_CGfGqaQOegOOMQR-c9AYNqk/exec';
 let user=null,cur=null,str=null,userLoc='-',profilePhotoData=null;
-const fixFoto = u =>!u? 'icon-192.png' : u.includes('/file/d/')? 'https://drive.google.com/uc?export=view&id='+u.split('/d/')[1].split('/')[0] : u;
+const $=s=>document.querySelector(s);
+const fixFoto=u=>!u?'icon-192.png':u.includes('/file/d/')?'https://drive.google.com/uc?export=view&id='+u.split('/d/')[1].split('/')[0]:u;
 const fW=d=>new Intl.DateTimeFormat('id-ID',{timeZone:'Asia/Jakarta',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).format(d);
 const fD=d=>new Intl.DateTimeFormat('id-ID',{timeZone:'Asia/Jakarta',weekday:'long',day:'2-digit',month:'long',year:'numeric'}).format(d);
 async function api(p){const r=await fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(p)});const j=await r.json();if(j.error)throw new Error(j.error);return j;}
 function show(i){document.querySelectorAll('#app>div').forEach(v=>v.classList.add('hidden'));$('#'+i).classList.remove('hidden');}
-$('#loginForm').onsubmit=async e=>{e.preventDefault();try{user=await api({action:'login',username:$('#username').value,password:$('#password').value});localStorage.absensi_user=JSON.stringify(user);init()}catch(err){$('#loginError').textContent=err.message;$('#loginError').classList.remove('hidden')}};
+$('#loginForm').onsubmit=async e=>{e.preventDefault();$('#loginError').classList.add('hidden');try{user=await api({action:'login',username:$('#username').value.trim(),password:$('#password').value});localStorage.absensi_user=JSON.stringify(user);init()}catch(err){$('#loginError').textContent=err.message;$('#loginError').classList.remove('hidden')}};
 $('#togglePass').onclick=()=>{const p=$('#password');p.type=p.type==='password'?'text':'password';$('#togglePass').textContent=p.type==='password'?'👁':'🙈';};
-function init(){show('homeView');$('#namaHome').textContent=user.nama;if(user.foto)$('#avatarHome').src=fixFoto(user.foto);tick();setInterval(tick,1000);}
+function init(){show('homeView');$('#namaHome').textContent=user.nama;$('#avatarHome').src=fixFoto(user.foto);tick();setInterval(tick,1000);}
 function tick(){const n=new Date();$('#jamHomeBig').textContent=fW(n).replace(/:/g,'.');$('#tanggalHomeBig').textContent=fD(n);$('#hariHome').textContent=fD(n);$('#jam').textContent=fW(n);$('#tanggal').textContent=fD(n);}
 $('#logoutBtn').onclick=()=>{localStorage.removeItem('absensi_user');location.reload()};
 $('#cardAbsensi').onclick=()=>{show('absensiView');loadT()};$('#cardRekap').onclick=()=>{show('rekapView');loadR()};$('#cardProfil').onclick=()=>openProfile();document.querySelectorAll('[data-back]').forEach(b=>b.onclick=()=>show('homeView'));
@@ -24,4 +25,4 @@ $('#changePhotoBtn').onclick=()=>$('#photoInput').click();
 $('#photoInput').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{profilePhotoData=ev.target.result;$('#profileAvatar').src=profilePhotoData};r.readAsDataURL(f)};
 document.querySelectorAll('[data-toggle]').forEach(b=>{b.onclick=()=>{const id=b.getAttribute('data-toggle');const i=$('#'+id);i.type=i.type==='password'?'text':'password';b.textContent=i.type==='password'?'👁':'🙈'}});
 $('#profileForm').onsubmit=async e=>{e.preventDefault();const p1=$('#pfPass1').value,p2=$('#pfPass2').value;if(p1&&p1!==p2){$('#profileMsg').textContent='Password tidak sama';return}$('#profileMsg').textContent='Menyimpan...';const data={noHp:$('#pfNoHp').value,alamat:$('#pfAlamat').value,noRek:$('#pfNoRek').value,ttl:$('#pfTtl').value};if(p1)data.password=p1;if(profilePhotoData)data.fotoProfil=profilePhotoData;try{const res=await api({action:'updateProfile',username:user.username,data});if(res.foto){user.foto=fixFoto(res.foto);localStorage.absensi_user=JSON.stringify(user);$('#avatarHome').src=user.foto}$('#profileMsg').textContent='Berhasil disimpan';$('#pfPass1').value='';$('#pfPass2').value='';setTimeout(()=>show('homeView'),800)}catch(err){$('#profileMsg').textContent=err.message}};
-window.onload=()=>{const s=localStorage.absensi_user;if(s){user=JSON.parse(s);init()}else show('loginView');};
+window.onload=()=>{const s=localStorage.absensi_user;if(s){try{user=JSON.parse(s);init()}catch{localStorage.removeItem('absensi_user');show('loginView')}}else show('loginView');};
