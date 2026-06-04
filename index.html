@@ -50,6 +50,25 @@
     </div>
   </div>
 </div>
+<script>
+if('serviceWorker' in navigator){navigator.serviceWorker.register('service-worker.js');}
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt',e=>{
+  e.preventDefault(); deferredPrompt=e;
+  // PAKSA INSTALL - tampilkan banner
+  const banner=document.createElement('div');
+  banner.innerHTML=`<div style="position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#0ea5e9;color:white;padding:12px 20px;border-radius:12px;z-index:9999;font-size:13px">Install aplikasi untuk absen <button id="installBtn" style="margin-left:10px;background:white;color:#0ea5e9;padding:4px 10px;border-radius:6px;font-weight:600">Install</button></div>`;
+  document.body.appendChild(banner);
+  document.getElementById('installBtn').onclick=async()=>{banner.remove();deferredPrompt.prompt();await deferredPrompt.userChoice;};
+});
+// KUNCI fitur kalau belum install
+window.addEventListener('load',()=>{
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+  if(!isStandalone && !localStorage.getItem('skipInstall')){
+    document.getElementById('app').innerHTML = `<div class="glass rounded- p-8 text-center border border-white/10"><h2 class="text-lg mb-3">Install Dulu</h2><p class="text-sm text-white/70 mb-4">Absensi hanya bisa dipakai lewat aplikasi.</p><button onclick="deferredPrompt&&deferredPrompt.prompt()" class="px-4 py-2 bg-sky-500 rounded-xl">Install Sekarang</button></div>`;
+  }
+});
+</script>
 <script src="app.js?v=15"></script>
 </body>
 </html>
