@@ -13,14 +13,10 @@
 </head>
 <body class="min-h-screen bg-slate-950 text-white grid place-items-center p-4 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-sky-900 via-slate-950 to-black">
 <div id="app" class="w-[360px] max-w-[calc(100%-2rem)]">
-
-  <div id="loginView" class="w-full glass rounded-[2rem] p-8 border border-white/10">
-    <div class="text-center mb-7"><img src="icon-192.png" class="w-20 h-20 mx-auto rounded-2xl mb-4 shadow-xl"><h1 class="text-[22px] font-semibold">Absensi Karyawan<br>Terpadu</h1><p class="text-white/50 text-[12px] italic mt-1">Integrated Management System</p></div>
-    <form id="loginForm" class="space-y-4"><div><label class="text-xs text-white/70">Username</label><input id="username" class="w-full mt-1 px-4 py-3 rounded-xl bg-white/10 border border-white/10 outline-none" required></div><div class="relative"><label class="text-xs text-white/70">Password</label><input id="password" type="password" class="w-full mt-1 px-4 py-3 pr-10 rounded-xl bg-white/10 border border-white/10 outline-none" required><button id="togglePass" type="button" class="absolute right-3 top-8">👁️</button></div><button class="w-full py-3 rounded-xl bg-sky-500 font-medium btn">Masuk</button><p id="loginError" class="text-red-400 text-xs text-center hidden"></p></form>
-    <p class="text-center text-[10px] text-white/30 mt-6">@v1.5 • SMG-2026</p>
-  </div>
+  <div id="loginView" class="w-full glass rounded-[2rem] p-8 border border-white/10"><div class="text-center mb-7"><img src="icon-192.png" class="w-20 h-20 mx-auto rounded-2xl mb-4 shadow-xl"><h1 class="text-[22px] font-semibold">Absensi Karyawan<br>Terpadu</h1><p class="text-white/50 text-[12px] italic mt-1">Integrated Management System</p></div><form id="loginForm" class="space-y-4"><div><label class="text-xs text-white/70">Username</label><input id="username" class="w-full mt-1 px-4 py-3 rounded-xl bg-white/10 border border-white/10 outline-none" required></div><div class="relative"><label class="text-xs text-white/70">Password</label><input id="password" type="password" class="w-full mt-1 px-4 py-3 pr-10 rounded-xl bg-white/10 border border-white/10 outline-none" required><button id="togglePass" type="button" class="absolute right-3 top-8">👁️</button></div><button class="w-full py-3 rounded-xl bg-sky-500 font-medium btn">Masuk</button><p id="loginError" class="text-red-400 text-xs text-center hidden"></p></form><p class="text-center text-[10px] text-white/30 mt-6">@v1.6 • SMG-2026</p></div>
 
   <div id="homeView" class="hidden w-full space-y-3">
+    <div id="installBanner"></div>
     <div class="glass rounded-[2rem] px-4 py-3 border border-white/10 flex items-center justify-between"><div class="flex items-center gap-3"><img id="avatarHome" src="icon-192.png" class="w-10 h-10 rounded-xl bg-white/10 object-cover"><div><p id="namaHome" class="text-[14px] font-medium">-</p><p id="hariHome" class="text-[11px] text-sky-300">-</p></div></div><button id="logoutBtn" class="text-[11px] px-3 py-1.5 rounded-lg bg-white/10">Keluar</button></div>
     <div class="glass rounded-[2rem] p-6 text-center border border-white/10"><p id="jamHomeBig" class="text-[48px] font-light tracking-widest">--.--.--</p><p id="tanggalHomeBig" class="text-white/60 text-[13px] mt-2">-</p></div>
     <div class="grid grid-cols-2 gap-3"><button id="cardAbsensi" class="glass rounded-[2rem] p-5 border border-white/10 flex flex-col items-center gap-2"><img src="icon-absensi.png" class="w-12 h-12"><span class="text-xs">Absensi</span></button><button id="cardRekap" class="glass rounded-[2rem] p-5 border border-white/10 flex flex-col items-center gap-2"><img src="icon-rekap.png" class="w-12 h-12"><span class="text-xs">Rekap</span></button></div>
@@ -31,44 +27,22 @@
   <div id="rekapView" class="hidden w-full"><button data-back class="mb-2 text-xs text-white/60">← Kembali</button><div class="glass rounded-[2rem] p-4 border border-white/10"><div class="flex justify-between mb-2"><h3 id="rekapTitle" class="text-sm">Rekap</h3><button id="refreshBtn" class="text-[10px] px-2 py-1 bg-white/10 rounded">Refresh</button></div><div class="max-h-[50vh] overflow-auto"><table class="w-full text-xs"><thead class="text-white/50"><tr><th class="text-left py-1">Tgl</th><th>In</th><th>Out</th></tr></thead><tbody id="rekapBody"></tbody></table></div><p id="totalKerja" class="text-[10px] text-center mt-2 text-white/50"></p></div></div>
 </div>
 
-<div id="camModal" class="fixed inset-0 bg-black/95 hidden items-center justify-center p-4 z-50">
-  <div class="w-full max-w-[340px] relative">
-    <video id="video" autoplay playsinline class="w-full rounded-2xl bg-black aspect-[3/4] object-cover"></video>
+<div id="camModal" class="fixed inset-0 bg-black/95 hidden items-center justify-center p-4 z-50"><div class="w-full max-w-[340px] relative"><video id="video" autoplay playsinline class="w-full rounded-2xl bg-black aspect-[3/4] object-cover"></video><div id="camWatermark" class="hidden absolute top-3 left-3 right-3 pointer-events-none"><div class="bg-black/60 rounded-lg px-3 py-2 backdrop-blur-sm"><p id="wmNama" class="text-white text-sm font-medium">-</p><p class="text-white/80 text-[11px]"><span id="wmLokasi">-</span> • <span id="wmWaktu">--.--.--</span></p></div></div><canvas id="canvas" class="hidden"></canvas><div class="flex gap-3 mt-3 relative z-10"><button id="cancelCam" class="flex-1 py-3 rounded-xl bg-white/20">Batal</button><button id="snapBtn" class="flex-1 py-3 rounded-xl bg-sky-500 font-medium">Jepret</button></div></div></div>
 
-    <!-- WATERMARK PINDAH KE ATAS, TIDAK NUTUP TOMBOL -->
-    <div id="camWatermark" class="hidden absolute top-3 left-3 right-3 pointer-events-none">
-      <div class="bg-black/60 rounded-lg px-3 py-2 backdrop-blur-sm">
-        <p id="wmNama" class="text-white text-sm font-medium">-</p>
-        <p class="text-white/80 text-[11px]"><span id="wmLokasi">-</span> • <span id="wmWaktu">--.--.--</span></p>
-      </div>
-    </div>
-
-    <canvas id="canvas" class="hidden"></canvas>
-    <div class="flex gap-3 mt-3 relative z-10">
-      <button id="cancelCam" class="flex-1 py-3 rounded-xl bg-white/20">Batal</button>
-      <button id="snapBtn" class="flex-1 py-3 rounded-xl bg-sky-500 font-medium">Jepret</button>
-    </div>
-  </div>
-</div>
 <script>
-if('serviceWorker' in navigator){navigator.serviceWorker.register('service-worker.js');}
+if('serviceWorker' in navigator) navigator.serviceWorker.register('service-worker.js');
 let deferredPrompt;
-window.addEventListener('beforeinstallprompt',e=>{
-  e.preventDefault(); deferredPrompt=e;
-  // PAKSA INSTALL - tampilkan banner
-  const banner=document.createElement('div');
-  banner.innerHTML=`<div style="position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#0ea5e9;color:white;padding:12px 20px;border-radius:12px;z-index:9999;font-size:13px">Install aplikasi untuk absen <button id="installBtn" style="margin-left:10px;background:white;color:#0ea5e9;padding:4px 10px;border-radius:6px;font-weight:600">Install</button></div>`;
-  document.body.appendChild(banner);
-  document.getElementById('installBtn').onclick=async()=>{banner.remove();deferredPrompt.prompt();await deferredPrompt.userChoice;};
-});
-// KUNCI fitur kalau belum install
-window.addEventListener('load',()=>{
-  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-  if(!isStandalone && !localStorage.getItem('skipInstall')){
-    document.getElementById('app').innerHTML = `<div class="glass rounded- p-8 text-center border border-white/10"><h2 class="text-lg mb-3">Install Dulu</h2><p class="text-sm text-white/70 mb-4">Absensi hanya bisa dipakai lewat aplikasi.</p><button onclick="deferredPrompt&&deferredPrompt.prompt()" class="px-4 py-2 bg-sky-500 rounded-xl">Install Sekarang</button></div>`;
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;});
+function checkInstall(){
+  const standalone=window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone;
+  if(!standalone && deferredPrompt){
+    document.getElementById('installBanner').innerHTML=`<div class="glass rounded-[2rem] p-4 border border-amber-500/30 text-center"><p class="text-[13px] mb-2">📲 Install aplikasi dulu untuk absen</p><button id="installNow" class="px-4 py-2 bg-amber-500 text-black rounded-xl text-sm font-medium">Install Sekarang</button></div>`;
+    document.getElementById('cardAbsensi').style.opacity='0.4';document.getElementById('cardAbsensi').style.pointerEvents='none';
+    document.getElementById('installNow').onclick=async()=>{deferredPrompt.prompt();await deferredPrompt.userChoice;};
   }
-});
+}
+window.addEventListener('appinstalled',()=>location.reload());
 </script>
-<script src="app.js?v=15"></script>
+<script src="app.js?v=16"></script>
 </body>
 </html>
