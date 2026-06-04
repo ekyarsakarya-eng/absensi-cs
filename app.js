@@ -5,9 +5,8 @@ const fixFoto=u=>{if(!u)return'icon-192.png';const id=(u.match(/[-\w]{25,}/)||[]
 const fW=d=>new Intl.DateTimeFormat('id-ID',{timeZone:'Asia/Jakarta',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).format(d);
 const fD=d=>new Intl.DateTimeFormat('id-ID',{timeZone:'Asia/Jakarta',weekday:'long',day:'2-digit',month:'long',year:'numeric'}).format(d);
 
-// CACHE API 30 detik
-const apiCache={get(k){const v=sessionStorage.getItem(k);if(!v)return null;const o=JSON.parse(v);return Date.now()-o.t<30000?o.d:null},set(k,d){sessionStorage.setItem(k,JSON.stringify({t:Date.now(),d}))}};
-async function api(p){const key=p.action+'_'+(p.username||'');if((p.action==='getAbsensi'||p.action==='getRekap')&&apiCache.get(key))return apiCache.get(key);const r=await fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(p),keepalive:true});const j=await r.json();if(j.error)throw new Error(j.error);if(p.action==='getAbsensi'||p.action==='getRekap')apiCache.set(key,j);return j}
+const apiCache={get:k=>{const v=sessionStorage.getItem(k);if(!v)return null;const o=JSON.parse(v);return Date.now()-o.t<5e3?o.d:null},set:(k,d)=>sessionStorage.setItem(k,JSON.stringify({t:Date.now(),d}))};
+async function api(p){const k=p.action+"_"+(p.username||"");if("getRekap"===p.action&&apiCache.get(k))return apiCache.get(k);const r=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"text/plain"},body:JSON.stringify(p),keepalive:!0}),j=await r.json();if(j.error)throw new Error(j.error);return"getRekap"===p.action&&apiCache.set(k,j),j}
 
 // KOMPRES CEPAT
 async function kompres(file,max=720,q=0.72){const bmp=await createImageBitmap(file);const s=Math.min(max/bmp.width,max/bmp.height,1);const c=document.createElement('canvas');c.width=bmp.width*s;c.height=bmp.height*s;c.getContext('2d',{willReadFrequently:true}).drawImage(bmp,0,0,c.width,c.height);return c.toDataURL('image/jpeg',q)}
