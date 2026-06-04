@@ -1,4 +1,4 @@
-const CACHE='absensi-v21';
+const CACHE='absensi-v23';
 const FILES=['./','./index.html','./app.js','./manifest.json','./icon-192.png','./icon-512.png','./icon-absensi.png','./icon-rekap.png','./icon-profile.png'];
 self.addEventListener('install',e=>{self.skipWaiting();e.waitUntil(caches.open(CACHE).then(c=>c.addAll(FILES)))});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==CACHE).map(x=>caches.delete(x)))))});
