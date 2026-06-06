@@ -1,4 +1,4 @@
-const API_URL='https://script.google.com/macros/s/AKfycbwKWbxAmhxrZiA6o8xKQjEzyiR7GRZuimvh2KxcVFbf_CGfGqaQOegOOMQR-c9AYNqk/exec';
+const API_URL='https://script.google.com/macros/s/AKfycbxDoeQ7m2ecUMPReW3Dqrriy56egmEc7XhZuSGT1Kqi3m0iMZlkqpjeGy-zVmp1pjre/exec';
 let user=null,cur=null,str=null,userLoc='-',profilePhotoData=null;
 let LOCATIONS = {}; // <--- PENTING
 
