@@ -83,12 +83,18 @@ h1,h3{font-weight:700!important}
 <div id="camModal" class="fixed inset-0 bg-black/95 hidden items-center justify-center p-4 z-50">
   <div class="w-full max-w-sm relative">
     <video id="video" autoplay playsinline class="w-full rounded-3xl bg-black aspect-[3/4] object-cover"></video>
+    <div id="camModal" class="fixed inset-0 bg-black/95 hidden items-center justify-center p-4 z-50">
+  <div class="w-full max-w-sm relative">
+    <video id="video" autoplay playsinline class="w-full rounded-3xl bg-black aspect-[3/4] object-cover"></video>
+
     <div id="camWatermark" class="hidden absolute top-4 left-4 right-4 pointer-events-none">
       <div class="bg-black/60 rounded-xl px-4 py-2.5 backdrop-blur-sm">
         <p id="wmNama" class="text-white text-sm font-bold">-</p>
         <p id="wmLokasi" class="text-white/80 text-xs mt-0.5">-</p>
-        <p id="wmWaktu" class="text-white/60 text-[10px]">--.--.--</p>
+        <p id="wmWaktu" class="text-white/60 text-[10px]">--.--</p>
       </div>
+    </div> <!-- <-- INI YANG KEMARIN HILANG -->
+
     <canvas id="canvas" class="hidden"></canvas>
     <div class="flex gap-3 mt-4">
       <button id="cancelCam" class="flex-1 py-4 rounded-2xl bg-white/20 text-white text-base font-bold">Batal</button>
