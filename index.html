@@ -80,30 +80,32 @@ h1,h3{font-weight:700!important}
   </div>
 </div>
 
+<!-- CAMERA MODAL - GANTI TOTAL BLOK INI -->
 <div id="camModal" class="fixed inset-0 bg-black/95 hidden items-center justify-center p-4 z-50">
-  <div class="w-full max-w-sm relative">
-    <video id="video" autoplay playsinline class="w-full rounded-3xl bg-black aspect-[3/4] object-cover"></video>
-    <div id="camModal" class="fixed inset-0 bg-black/95 hidden items-center justify-center p-4 z-50">
-  <div class="w-full max-w-sm relative">
-    <video id="video" autoplay playsinline class="w-full rounded-3xl bg-black aspect-[3/4] object-cover"></video>
+  <div class="w-full max-w-sm">
+    <!-- area video + watermark -->
+    <div class="relative">
+      <video id="video" autoplay playsinline class="w-full rounded-3xl bg-black aspect-[3/4] object-cover"></video>
 
-    <div id="camWatermark" class="hidden absolute top-4 left-4 right-4 pointer-events-none">
-      <div class="bg-black/60 rounded-xl px-4 py-2.5 backdrop-blur-sm">
-        <p id="wmNama" class="text-white text-sm font-bold">-</p>
-        <p id="wmLokasi" class="text-white/80 text-xs mt-0.5">-</p>
-        <p id="wmWaktu" class="text-white/60 text-[10px]">--.--</p>
+      <div id="camWatermark" class="hidden absolute top-4 left-4 right-4 pointer-events-none">
+        <div class="bg-black/60 rounded-xl px-4 py-2.5 backdrop-blur-sm">
+          <p id="wmNama" class="text-white text-sm font-bold">-</p>
+          <p id="wmLokasi" class="text-white/80 text-xs mt-0.5">-</p>
+          <p id="wmWaktu" class="text-white/60 text-[10px]">--.--</p>
+        </div>
       </div>
-    </div> <!-- <-- INI YANG KEMARIN HILANG -->
+    </div>
 
     <canvas id="canvas" class="hidden"></canvas>
+
+    <!-- tombol SELALU di luar video -->
     <div class="flex gap-3 mt-4">
-      <button id="cancelCam" class="flex-1 py-4 rounded-2xl bg-white/20 text-white text-base font-bold">Batal</button>
-      <button id="snapBtn" class="flex-1 py-4 rounded-2xl bg-sky-600 text-white font-bold text-base">Jepret</button>
+      <button id="cancelCam" type="button" class="flex-1 py-4 rounded-2xl bg-white/20 text-white text-base font-bold">Batal</button>
+      <button id="snapBtn" type="button" class="flex-1 py-4 rounded-2xl bg-sky-600 text-white font-bold text-base">Jepret</button>
     </div>
   </div>
 </div>
-
 <script>if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js')</script>
-<script src="app.js?v=28" defer></script>
+<script src="app.js?v=29" defer></script>
 </body>
 </html>
