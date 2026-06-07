@@ -38,29 +38,29 @@ $("#loginForm").onsubmit=async e=>{e.preventDefault();$("#loginError").classList
 $("#togglePass").onclick=()=>{const p=$("#password");p.type=p.type==="password"?"text":"password";$("#togglePass").textContent=p.type==="password"?"👁":"🙈"};
 async function init(){show("homeView");$("#namaHome").textContent=user.nama;$("#avatarHome").src=fixFoto(user.foto);tick();setInterval(tick,1000);await loadLokasi();}
 
-// === BAGIAN INI YANG DIGANTI ===
+// === FIX HIJRIAH KEMENAG + LATIN ===
 function tick(){
   const n=new Date;
   const h=String(n.getHours()).padStart(2,'0');
   const m=String(n.getMinutes()).padStart(2,'0');
   const s=String(n.getSeconds()).padStart(2,'0');
 
-  // Pasaran Jawa - 7 Juni 2026 = Sabtu Kliwon
+  // Pasaran Jawa
   const pasaran=['Pahing','Pon','Wage','Kliwon','Legi'];
-  const ref=new Date(2026,5,7); // 7 Juni 2026
+  const ref=new Date(2026,5,7); // 7 Juni 2026 = Kliwon
   const selisih=Math.floor((n-ref)/86400000);
-  const pas=pasaran[(3+selisih)%5]; // 3 = index Kliwon
+  const pas=pasaran[(3+selisih)%5];
 
-  // Hijri - FIX PAKE MOMENT-HIJRI
+  // Hijri Kemenag - offset -1 hari, 100% latin
   moment.locale('id');
-  const hijri = moment(n).format('iD iMMMM iYYYY [H]'); // Hasil: 22 Zulhijah 1447 H
+  const hijri = moment(n).subtract(1, 'days').format('iD iMMMM iYYYY [H]');
+  // Hasil: 22 Zulhijah 1447 H
 
   // Format tanggal
   const hari=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'][n.getDay()];
   const bulan=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'][n.getMonth()];
   const tgl=String(n.getDate()).padStart(2,'0');
 
-  // UPDATE - paksa pakai titik dua
   document.getElementById('jamHomeBig').textContent=h+':'+m+':'+s;
   document.getElementById('tanggalHomeBig').innerHTML=
     hari+' '+pas+', '+tgl+' '+bulan+' '+n.getFullYear()+'<br>'+
