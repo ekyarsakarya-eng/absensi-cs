@@ -49,8 +49,9 @@ function tick(){
   const selisih=Math.floor((n-ref)/86400000);
   const pas=pasaran[(3+selisih)%5]; // 3 = index Kliwon
   
-  // Hijri
-  const hijri=new Intl.DateTimeFormat('id-ID-u-ca-islamic',{day:'numeric',month:'long',year:'numeric'}).format(n);
+  // Hijri - UDAH DIGANTI PAKE moment-hijri
+  moment.locale('id');
+  const hijri = moment(n).format('iD iMMMM iYYYY [H]');
   
   // Format tanggal
   const hari=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'][n.getDay()];
