@@ -39,33 +39,32 @@ $("#togglePass").onclick=()=>{const p=$("#password");p.type=p.type==="password"?
 async function init(){show("homeView");$("#namaHome").textContent=user.nama;$("#avatarHome").src=fixFoto(user.foto);tick();setInterval(tick,1000);await loadLokasi();}
 function tick(){
   const n=new Date;
+  const h=String(n.getHours()).padStart(2,'0');
+  const m=String(n.getMinutes()).padStart(2,'0');
+  const s=String(n.getSeconds()).padStart(2,'0');
   
-  // Hitung Pasaran Jawa
-  const pasaran = ['Legi','Pahing','Pon','Wage','Kliwon'];
-  const start = new Date(1900,0,1).getTime();
-  const diff = Math.floor((n.getTime() - start) / 86400000);
-  const pas = pasaran[(diff + 1) % 5];
+  // Pasaran Jawa - 7 Juni 2026 = Sabtu Kliwon
+  const pasaran=['Pahing','Pon','Wage','Kliwon','Legi'];
+  const ref=new Date(2026,5,7); // 7 Juni 2026
+  const selisih=Math.floor((n-ref)/86400000);
+  const pas=pasaran[(3+selisih)%5]; // 3 = index Kliwon
   
-  // Tanggal Hijriyah
-  const hijri = new Intl.DateTimeFormat('id-ID-u-ca-islamic', {
-    day:'numeric', month:'long', year:'numeric'
-  }).format(n);
+  // Hijri
+  const hijri=new Intl.DateTimeFormat('id-ID-u-ca-islamic',{day:'numeric',month:'long',year:'numeric'}).format(n);
   
-  // Tanggal Jawa
-  const bulanJawa = ['Sura','Sapar','Mulud','Bakdamulud','Jumadilawal','Jumadilakhir','Rejeb','Ruwah','Pasa','Sawal','Sela','Besar'];
-  const tglJawa = n.getDate();
-  const blnJawa = bulanJawa[n.getMonth()];
+  // Format tanggal
+  const hari=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'][n.getDay()];
+  const bulan=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'][n.getMonth()];
+  const tgl=String(n.getDate()).padStart(2,'0');
   
-  const hari = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'][n.getDay()];
+  // UPDATE - paksa pakai titik dua
+  document.getElementById('jamHomeBig').textContent=h+':'+m+':'+s;
+  document.getElementById('tanggalHomeBig').innerHTML=
+    hari+' '+pas+', '+tgl+' '+bulan+' '+n.getFullYear()+'<br>'+
+    '<span style="color:#0ea5e9;font-size:13px">'+hijri+' H</span>';
   
-  // UPDATE HOME - pakai titik dua
-  $("#jamHomeBig").textContent = fW(n); // sudah pakai :
-  $("#tanggalHomeBig").innerHTML = `${fD(n)}<br><span style="font-size:0.8em;opacity:0.8">${hari} ${pas}</span><br><span style="font-size:0.7em;color:#0ea5e9">${tglJawa} ${blnJawa} • ${hijri} H</span>`;
-  $("#hariHome").textContent = `${hari} ${pas}`;
-  
-  // UPDATE ABSENSI
-  $("#jam").textContent = fW(n);
-  $("#tanggal").innerHTML = `${fD(n)}<br><small>${pas} • ${hijri}</small>`;
+  document.getElementById('jam').textContent=h+':'+m+':'+s;
+  document.getElementById('hariHome').textContent=hari+' '+pas;
 }
 
 $("#logoutBtn").onclick=()=>{localStorage.removeItem("absensi_user");location.reload()};
