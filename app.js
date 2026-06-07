@@ -37,7 +37,36 @@ function show(i){document.querySelectorAll("#app>div").forEach(v=>v.classList.ad
 $("#loginForm").onsubmit=async e=>{e.preventDefault();$("#loginError").classList.add("hidden");try{user=await api({action:"login",username:$("#username").value.trim(),password:$("#password").value});localStorage.absensi_user=JSON.stringify(user);init()}catch(t){$("#loginError").textContent=t.message;$("#loginError").classList.remove("hidden")}};
 $("#togglePass").onclick=()=>{const p=$("#password");p.type=p.type==="password"?"text":"password";$("#togglePass").textContent=p.type==="password"?"👁":"🙈"};
 async function init(){show("homeView");$("#namaHome").textContent=user.nama;$("#avatarHome").src=fixFoto(user.foto);tick();setInterval(tick,1000);await loadLokasi();}
-function tick(){const n=new Date;$("#jamHomeBig").textContent=fW(n).replace(/:/g,".");$("#tanggalHomeBig").textContent=fD(n);$("#hariHome").textContent=fD(n);$("#jam").textContent=fW(n);$("#tanggal").textContent=fD(n)}
+function tick(){
+  const n=new Date;
+  
+  // Hitung Pasaran Jawa
+  const pasaran = ['Legi','Pahing','Pon','Wage','Kliwon'];
+  const start = new Date(1900,0,1).getTime();
+  const diff = Math.floor((n.getTime() - start) / 86400000);
+  const pas = pasaran[(diff + 1) % 5];
+  
+  // Tanggal Hijriyah
+  const hijri = new Intl.DateTimeFormat('id-ID-u-ca-islamic', {
+    day:'numeric', month:'long', year:'numeric'
+  }).format(n);
+  
+  // Tanggal Jawa
+  const bulanJawa = ['Sura','Sapar','Mulud','Bakdamulud','Jumadilawal','Jumadilakhir','Rejeb','Ruwah','Pasa','Sawal','Sela','Besar'];
+  const tglJawa = n.getDate();
+  const blnJawa = bulanJawa[n.getMonth()];
+  
+  const hari = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'][n.getDay()];
+  
+  // UPDATE HOME - pakai titik dua
+  $("#jamHomeBig").textContent = fW(n); // sudah pakai :
+  $("#tanggalHomeBig").innerHTML = `${fD(n)}<br><span style="font-size:0.8em;opacity:0.8">${hari} ${pas}</span><br><span style="font-size:0.7em;color:#0ea5e9">${tglJawa} ${blnJawa} • ${hijri} H</span>`;
+  $("#hariHome").textContent = `${hari} ${pas}`;
+  
+  // UPDATE ABSENSI
+  $("#jam").textContent = fW(n);
+  $("#tanggal").innerHTML = `${fD(n)}<br><small>${pas} • ${hijri}</small>`;
+}
 $("#logoutBtn").onclick=()=>{localStorage.removeItem("absensi_user");location.reload()};
 $("#cardAbsensi").onclick=()=>{show("absensiView");loadT()};
 $("#cardRekap").onclick=()=>{show("rekapView");loadR()};
@@ -60,7 +89,7 @@ function pilihLokasi(){
 }
 $("#cancelLokasi").onclick=()=>$("#lokasiModal").classList.replace("flex","hidden");
 
-async function openC(t){cur=t;$("#camModal").classList.replace("hidden","flex");try{str=await navigator.mediaDevices.getUserMedia({video:{facingMode:"user",width:1280}});$("#video").srcObject=str}catch(e){alert("Kamera gagal: "+e.message);closeC();return}$("#camWatermark").classList.remove("hidden");$("#wmNama").textContent=user.nama;if(navigator.geolocation){navigator.geolocation.getCurrentPosition(p=>{userLoc=`${p.coords.latitude.toFixed(5)},${p.coords.longitude.toFixed(5)}`;$("#wmLokasi").textContent=(window.pilihLokasi||'')+' '+userLoc},()=>{userLoc='0,0';$("#wmLokasi").textContent="-"})}clearInterval(window.wmTimer);window.wmTimer=setInterval(()=>{$("#wmWaktu").textContent=fW(new Date).replace(/:/g,".")+" WIB"},500)}
+async function openC(t){cur=t;$("#camModal").classList.replace("hidden","flex");try{str=await navigator.mediaDevices.getUserMedia({video:{facingMode:"user",width:1280}});$("#video").srcObject=str}catch(e){alert("Kamera gagal: "+e.message);closeC();return}$("#camWatermark").classList.remove("hidden");$("#wmNama").textContent=user.nama;if(navigator.geolocation){navigator.geolocation.getCurrentPosition(p=>{userLoc=`${p.coords.latitude.toFixed(5)},${p.coords.longitude.toFixed(5)}`;$("#wmLokasi").textContent=(window.pilihLokasi||'')+' '+userLoc},()=>{userLoc='0,0';$("#wmLokasi").textContent="-"})}clearInterval(window.wmTimer);window.wmTimer=setInterval(()=>{$("#wmWaktu").textContent=fW(new Date)+" WIB"
 function closeC(){$("#camModal").classList.replace("flex","hidden");$("#camWatermark").classList.add("hidden");clearInterval(window.wmTimer);if(str)str.getTracks().forEach(t=>t.stop())}
 $("#cancelCam").onclick=closeC;
 $("#snapBtn").onclick=async()=>{const v=$("#video"),c=$("#canvas"),x=c.getContext("2d"),s=Math.min(720/v.videoWidth,1);c.width=v.videoWidth*s;c.height=v.videoHeight*s;x.drawImage(v,0,0,c.width,c.height);const n=new Date;x.shadowColor="rgba(0,0,0,0.8)";x.shadowBlur=4;x.fillStyle="#fff";x.font=`${22*s}px sans-serif`;x.fillText(user.nama,20*s,c.height-70*s);x.font=`${18*s}px sans-serif`;x.fillText(window.pilihLokasi||userLoc,20*s,c.height-45*s);x.fillText(`${fD(n)} ${fW(n)}`,20*s,c.height-20*s);closeC();$("#statusMsg").textContent="Mengirim...";try{const[lt,ln]=userLoc.split(",");const p=c.toDataURL("image/jpeg",.72);await api({action:"absen",username:user.username,type:cur,photo:p,lat:lt||0,lng:ln||0,lokasi:window.pilihLokasi||''});$("#statusMsg").textContent="Berhasil!";setTimeout(loadT,800)}catch(e){$("#statusMsg").textContent=e.message}};
