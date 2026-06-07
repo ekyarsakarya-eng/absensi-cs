@@ -1,4 +1,4 @@
-const API_URL='https://script.google.com/macros/s/AKfycbxDoeQ7m2ecUMPReW3Dqrriy56egmEc7XhZuSGT1Kqi3m0iMZlkqpjeGy-zVmp1pjre/exec';
+const API_URL='https://script.google.com/macros/s/AKfycbwKWbxAmhxrZiA6o8xKQjEzyiR7GRZuimvh2KxcVFbf_CGfGqaQOegOOMQR-c9AYNqk/exec';
 let user=null,cur=null,str=null,userLoc='-',profilePhotoData=null;
 let LOCATIONS = {}; // <--- PENTING
 
@@ -67,6 +67,7 @@ function tick(){
   $("#jam").textContent = fW(n);
   $("#tanggal").innerHTML = `${fD(n)}<br><small>${pas} • ${hijri}</small>`;
 }
+
 $("#logoutBtn").onclick=()=>{localStorage.removeItem("absensi_user");location.reload()};
 $("#cardAbsensi").onclick=()=>{show("absensiView");loadT()};
 $("#cardRekap").onclick=()=>{show("rekapView");loadR()};
@@ -89,7 +90,7 @@ function pilihLokasi(){
 }
 $("#cancelLokasi").onclick=()=>$("#lokasiModal").classList.replace("flex","hidden");
 
-async function openC(t){cur=t;$("#camModal").classList.replace("hidden","flex");try{str=await navigator.mediaDevices.getUserMedia({video:{facingMode:"user",width:1280}});$("#video").srcObject=str}catch(e){alert("Kamera gagal: "+e.message);closeC();return}$("#camWatermark").classList.remove("hidden");$("#wmNama").textContent=user.nama;if(navigator.geolocation){navigator.geolocation.getCurrentPosition(p=>{userLoc=`${p.coords.latitude.toFixed(5)},${p.coords.longitude.toFixed(5)}`;$("#wmLokasi").textContent=(window.pilihLokasi||'')+' '+userLoc},()=>{userLoc='0,0';$("#wmLokasi").textContent="-"})}clearInterval(window.wmTimer);window.wmTimer=setInterval(()=>{$("#wmWaktu").textContent=fW(new Date)+" WIB"
+async function openC(t){cur=t;$("#camModal").classList.replace("hidden","flex");try{str=await navigator.mediaDevices.getUserMedia({video:{facingMode:"user",width:1280}});$("#video").srcObject=str}catch(e){alert("Kamera gagal: "+e.message);closeC();return}$("#camWatermark").classList.remove("hidden");$("#wmNama").textContent=user.nama;if(navigator.geolocation){navigator.geolocation.getCurrentPosition(p=>{userLoc=`${p.coords.latitude.toFixed(5)},${p.coords.longitude.toFixed(5)}`;$("#wmLokasi").textContent=(window.pilihLokasi||'')+' '+userLoc},()=>{userLoc='0,0';$("#wmLokasi").textContent="-"})}clearInterval(window.wmTimer);window.wmTimer=setInterval(()=>{$("#wmWaktu").textContent=fW(new Date)+" WIB"},500)}
 function closeC(){$("#camModal").classList.replace("flex","hidden");$("#camWatermark").classList.add("hidden");clearInterval(window.wmTimer);if(str)str.getTracks().forEach(t=>t.stop())}
 $("#cancelCam").onclick=closeC;
 $("#snapBtn").onclick=async()=>{const v=$("#video"),c=$("#canvas"),x=c.getContext("2d"),s=Math.min(720/v.videoWidth,1);c.width=v.videoWidth*s;c.height=v.videoHeight*s;x.drawImage(v,0,0,c.width,c.height);const n=new Date;x.shadowColor="rgba(0,0,0,0.8)";x.shadowBlur=4;x.fillStyle="#fff";x.font=`${22*s}px sans-serif`;x.fillText(user.nama,20*s,c.height-70*s);x.font=`${18*s}px sans-serif`;x.fillText(window.pilihLokasi||userLoc,20*s,c.height-45*s);x.fillText(`${fD(n)} ${fW(n)}`,20*s,c.height-20*s);closeC();$("#statusMsg").textContent="Mengirim...";try{const[lt,ln]=userLoc.split(",");const p=c.toDataURL("image/jpeg",.72);await api({action:"absen",username:user.username,type:cur,photo:p,lat:lt||0,lng:ln||0,lokasi:window.pilihLokasi||''});$("#statusMsg").textContent="Berhasil!";setTimeout(loadT,800)}catch(e){$("#statusMsg").textContent=e.message}};
