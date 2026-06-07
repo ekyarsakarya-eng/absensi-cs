@@ -61,7 +61,7 @@ function tick(){
   document.getElementById('jamHomeBig').textContent=h+':'+m+':'+s;
   document.getElementById('tanggalHomeBig').innerHTML=
     hari+' '+pas+', '+tgl+' '+bulan+' '+n.getFullYear()+'<br>'+
-    '<span style="color:#0ea5e9;font-size:13px">'+hijri+' H</span>';
+    '<span style="color:#0ea5e9;font-size:13px">'+hijri+'</span>';
   
   document.getElementById('jam').textContent=h+':'+m+':'+s;
   document.getElementById('hariHome').textContent=hari+' '+pas;
