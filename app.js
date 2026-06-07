@@ -37,33 +37,35 @@ function show(i){document.querySelectorAll("#app>div").forEach(v=>v.classList.ad
 $("#loginForm").onsubmit=async e=>{e.preventDefault();$("#loginError").classList.add("hidden");try{user=await api({action:"login",username:$("#username").value.trim(),password:$("#password").value});localStorage.absensi_user=JSON.stringify(user);init()}catch(t){$("#loginError").textContent=t.message;$("#loginError").classList.remove("hidden")}};
 $("#togglePass").onclick=()=>{const p=$("#password");p.type=p.type==="password"?"text":"password";$("#togglePass").textContent=p.type==="password"?"👁":"🙈"};
 async function init(){show("homeView");$("#namaHome").textContent=user.nama;$("#avatarHome").src=fixFoto(user.foto);tick();setInterval(tick,1000);await loadLokasi();}
+
+// === BAGIAN INI YANG DIGANTI ===
 function tick(){
   const n=new Date;
   const h=String(n.getHours()).padStart(2,'0');
   const m=String(n.getMinutes()).padStart(2,'0');
   const s=String(n.getSeconds()).padStart(2,'0');
-  
+
   // Pasaran Jawa - 7 Juni 2026 = Sabtu Kliwon
   const pasaran=['Pahing','Pon','Wage','Kliwon','Legi'];
   const ref=new Date(2026,5,7); // 7 Juni 2026
   const selisih=Math.floor((n-ref)/86400000);
   const pas=pasaran[(3+selisih)%5]; // 3 = index Kliwon
-  
-  // Hijri - UDAH DIGANTI PAKE moment-hijri
+
+  // Hijri - FIX PAKE MOMENT-HIJRI
   moment.locale('id');
-  const hijri = moment(n).format('iD iMMMM iYYYY [H]');
-  
+  const hijri = moment(n).format('iD iMMMM iYYYY [H]'); // Hasil: 22 Zulhijah 1447 H
+
   // Format tanggal
   const hari=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'][n.getDay()];
   const bulan=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'][n.getMonth()];
   const tgl=String(n.getDate()).padStart(2,'0');
-  
+
   // UPDATE - paksa pakai titik dua
   document.getElementById('jamHomeBig').textContent=h+':'+m+':'+s;
   document.getElementById('tanggalHomeBig').innerHTML=
     hari+' '+pas+', '+tgl+' '+bulan+' '+n.getFullYear()+'<br>'+
     '<span style="color:#0ea5e9;font-size:13px">'+hijri+'</span>';
-  
+
   document.getElementById('jam').textContent=h+':'+m+':'+s;
   document.getElementById('hariHome').textContent=hari+' '+pas;
 }
