@@ -36,9 +36,18 @@ async function kompres(f,m=720,q=.72){const b=await createImageBitmap(f),s=Math.
 function show(i){document.querySelectorAll("#app>div").forEach(v=>v.classList.add("hidden"));$("#"+i).classList.remove("hidden")}
 $("#loginForm").onsubmit=async e=>{e.preventDefault();$("#loginError").classList.add("hidden");try{user=await api({action:"login",username:$("#username").value.trim(),password:$("#password").value});localStorage.absensi_user=JSON.stringify(user);init()}catch(t){$("#loginError").textContent=t.message;$("#loginError").classList.remove("hidden")}};
 $("#togglePass").onclick=()=>{const p=$("#password");p.type=p.type==="password"?"text":"password";$("#togglePass").textContent=p.type==="password"?"👁":"🙈"};
-async function init(){show("homeView");$("#namaHome").textContent=user.nama;$("#avatarHome").src=fixFoto(user.foto);tick();setInterval(tick,1000);await loadLokasi();}
+async function init(){
+  show("homeView");
+  $("#namaHome").textContent=user.nama;
+  $("#avatarHome").src=fixFoto(user.foto);
+  $("#hariHome").textContent=user.penempatan || '-'; // <-- GANTI JADI INI
+  tick();
+  setInterval(tick,1000);
+  await loadLokasi();
+}
 
 // === FIX HIJRIAH KEMENAG + LATIN ===
+// === FIX HIJRIAH LATIN 100% ===
 function tick(){
   const n=new Date;
   const h=String(n.getHours()).padStart(2,'0');
@@ -46,17 +55,18 @@ function tick(){
   const s=String(n.getSeconds()).padStart(2,'0');
 
   // Pasaran Jawa
-  const pasaran=['Pahing','Pon','Wage','Kliwon','Legi'];
+  const pasaran=['Legi','Pahing','Pon','Wage','Kliwon'];
   const ref=new Date(2026,5,7); // 7 Juni 2026 = Kliwon
   const selisih=Math.floor((n-ref)/86400000);
-  const pas=pasaran[(3+selisih)%5];
+  const pas=pasaran[(3+selisih+1000)%5]; // +1000 biar nggak minus
 
-  // Hijri Kemenag - offset -1 hari, 100% latin
+  // Hijriyah Kemenag -1 hari, 100% LATIN
   moment.locale('id');
-  const hijri = moment(n).subtract(1, 'days').format('iD iMMMM iYYYY [H]');
-  // Hasil: 22 Zulhijah 1447 H
+  const hijriMoment = moment(n).subtract(1, 'days');
+  const hijriBulan = ['Muharram','Safar','Rabiul Awal','Rabiul Akhir','Jumadil Awal','Jumadil Akhir','Rajab','Syaban','Ramadhan','Syawal','Dzulkaidah','Dzulhijjah'];
+  const hijri = hijriMoment.format('iD') + ' ' + hijriBulan[hijriMoment.iMonth()] + ' ' + hijriMoment.iYear() + ' H';
 
-  // Format tanggal
+  // Format tanggal Masehi
   const hari=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'][n.getDay()];
   const bulan=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'][n.getMonth()];
   const tgl=String(n.getDate()).padStart(2,'0');
@@ -67,7 +77,6 @@ function tick(){
     '<span style="color:#0ea5e9;font-size:13px">'+hijri+'</span>';
 
   document.getElementById('jam').textContent=h+':'+m+':'+s;
-  document.getElementById('hariHome').textContent=hari+' '+pas;
 }
 
 $("#logoutBtn").onclick=()=>{localStorage.removeItem("absensi_user");location.reload()};
