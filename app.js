@@ -23,17 +23,11 @@ const apiCache = {
   }
 };
 
-const apiCallbacks = {};
-window.apiCallback = (data, id) => {
-  apiCallbacks[id]?.(data);
-  delete apiCallbacks[id];
-};
-
 async function api(p){
   const k=p.action+"_"+(p.username||"");
   if(p.action==="getRekap" && apiCache.get(k)) return apiCache.get(k);
 
-  // POST untuk absen & updateProfile karena ada upload base64
+  // POST untuk absen & updateProfile karena ada upload
   if(p.action==="absen" || p.action==="updateProfile"){
     const r=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"text/plain"},body:JSON.stringify(p),keepalive:true});
     const j=await r.json();
@@ -41,33 +35,38 @@ async function api(p){
     return j;
   }
 
-  // JSONP untuk GET, no CORS preflight
+  // JSONP FIX: Callback unique + cleanup
   return new Promise((resolve, reject) => {
-    const id = 'cb_' + Date.now() + '_' + Math.random().toString(36).slice(2);
-    apiCallbacks[id] = (data) => {
+    const cbName = 'cb_' + Date.now() + '_' + Math.random().toString(36).slice(2);
+    
+    window[cbName] = (data) => {
+      delete window[cbName];
+      script.remove();
       if(data.error) reject(new Error(data.error));
       else {
         if(p.action==="getRekap") apiCache.set(k, data);
         resolve(data);
       }
     };
+    
     const script = document.createElement('script');
-    const params = new URLSearchParams({...p, callback: 'apiCallback', _cbid: id});
+    const params = new URLSearchParams({...p, callback: cbName});
     script.src = `${API_URL}?${params}`;
     script.onerror = () => {
-      console.error('JSONP failed:', script.src);
+      delete window[cbName];
+      script.remove();
       reject(new Error('Network error'));
     };
     document.head.appendChild(script);
-    script.onload = () => script.remove();
-    // Timeout 10s
+    
+    // Timeout 8 detik
     setTimeout(() => {
-      if(apiCallbacks[id]) {
-        delete apiCallbacks[id];
+      if(window[cbName]) {
+        delete window[cbName];
         script.remove();
         reject(new Error('Timeout'));
       }
-    }, 10000);
+    }, 8000);
   });
 }
 
