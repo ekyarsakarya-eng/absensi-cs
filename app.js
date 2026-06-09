@@ -1,4 +1,6 @@
 const API_URL='https://script.google.com/macros/s/AKfycbxtru3eT8Zn6wMpWqjfLQPctuKThGFDPSIbRXKI1HInJYoQ5QnXqQZGYST68brYJas8/exec'; // GANTI PAKE URL BARU LU
+let deferredPrompt = null;
+let isInstalled = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
 let user=null,cur=null,str=null,userLoc='-',profilePhotoData=null;
 let LOCATIONS = {};
 let lastHijriDate = '', cachedHijri = '';
@@ -7,6 +9,61 @@ const $=s=>document.querySelector(s);
 const fixFoto=u=>{if(!u)return'icon-192.png';const i=(u.match(/[-\w]{25,}/)||[])[0];return i?`https://lh3.googleusercontent.com/d/${i}`:u};
 const fW=d=>new Intl.DateTimeFormat('id-ID',{timeZone:'Asia/Jakarta',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).format(d);
 const fD=d=>new Intl.DateTimeFormat('id-ID',{timeZone:'Asia/Jakarta',weekday:'long',day:'2-digit',month:'long',year:'numeric'}).format(d);
+
+// === PWA INSTALL GATE ===
+function checkInstallGate(){
+  const installed = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone || localStorage.pwa_installed === '1';
+  if(!installed){
+    $("#installGate").classList.replace('hidden','flex');
+    return false;
+  }
+  $("#installGate").classList.replace('flex','hidden');
+  return true;
+}
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  if(!isInstalled) $("#installGate").classList.replace('hidden','flex');
+});
+
+window.addEventListener('appinstalled', () => {
+  isInstalled = true;
+  localStorage.pwa_installed = '1';
+  $("#installGate").classList.replace('flex','hidden');
+});
+
+$("#btnInstallPWA").onclick = async () => {
+  if(!deferredPrompt){
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    if(isIOS){
+      alert('Cara Install di iPhone:\n\n1. Klik tombol Share di bawah\n2. Pilih "Add to Home Screen"\n3. Klik Add\n4. Buka dari icon di layar utama');
+    } else {
+      alert('Browser tidak support auto install.\n\nCara manual:\n1. Klik titik 3 di Chrome\n2. Pilih "Install aplikasi" / "Tambahkan ke Layar Utama"');
+    }
+    return;
+  }
+  deferredPrompt.prompt();
+  const {outcome} = await deferredPrompt.userChoice;
+  if(outcome === 'accepted'){
+    $("#btnInstallPWA").textContent = 'Membuka...';
+  }
+  deferredPrompt = null;
+};
+
+// Kalau udah pernah install tapi dibuka via browser, paksa close
+if(localStorage.pwa_installed === '1' &&!isInstalled){
+  document.addEventListener('DOMContentLoaded', () => {
+    document.body.innerHTML = `
+      <div class="h-screen flex flex-col items-center justify-center bg-slate-900 text-white p-6 text-center">
+        <img src="icon-512.png" class="w-20 h-20 rounded-2xl mb-4">
+        <h2 class="text-xl font-bold mb-2">Buka dari Aplikasi</h2>
+        <p class="text-slate-400 text-sm">Aplikasi sudah terinstall.<br>Silakan buka dari icon di layar utama HP Anda.</p>
+      </div>
+    `;
+  });
+  throw new Error('FORCE_INSTALL');
+}
 
 // === API PATCH: JSONP + CACHE OPTIMIZED ===
 const apiCache = {
@@ -343,6 +400,7 @@ $("#profileForm").onsubmit=async e=>{
 };
 
 window.onload=()=>{
+  checkInstallGate();
   const s=localStorage.absensi_user;
   s?((e=>{
     try{user=JSON.parse(e),init()}
