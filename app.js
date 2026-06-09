@@ -1,6 +1,7 @@
 const API_URL='https://script.google.com/macros/s/AKfycbwKWbxAmhxrZiA6o8xKQjEzyiR7GRZuimvh2KxcVFbf_CGfGqaQOegOOMQR-c9AYNqk/exec';
 let user=null,cur=null,str=null,userLoc='-',profilePhotoData=null;
 let LOCATIONS = {}; // <--- PENTING
+let lastHijriDate = '', cachedHijri = '';
 
 const $=s=>document.querySelector(s);
 const fixFoto=u=>{if(!u)return'icon-192.png';const i=(u.match(/[-\w]{25,}/)||[])[0];return i?`https://lh3.googleusercontent.com/d/${i}`:u};
@@ -72,36 +73,36 @@ async function init(){
   await loadLokasi();
 }
 
-// === FIX HIJRIAH KEMENAG + LATIN ===
-// === FIX HIJRIAH LATIN 100% ===
 function tick(){
   const n=new Date;
   const h=String(n.getHours()).padStart(2,'0');
   const m=String(n.getMinutes()).padStart(2,'0');
   const s=String(n.getSeconds()).padStart(2,'0');
 
-  // Pasaran Jawa
-  const pasaran=['Legi','Pahing','Pon','Wage','Kliwon'];
-  const ref=new Date(2026,5,7); // 7 Juni 2026 = Kliwon
-  const selisih=Math.floor((n-ref)/86400000);
-  const pas=pasaran[(3+selisih+1000)%5]; // +1000 biar nggak minus
+  // Hitung hijriah cuma sekali sehari
+  const dateKey = n.getFullYear()+'-'+n.getMonth()+'-'+n.getDate();
+  if(dateKey!== lastHijriDate){
+    const pasaran=['Legi','Pahing','Pon','Wage','Kliwon'];
+    const ref=new Date(2026,5,7);
+    const selisih=Math.floor((n-ref)/86400000);
+    const pas=pasaran[(3+selisih+1000)%5];
 
-  // Hijriyah Kemenag -1 hari, 100% LATIN
-  moment.locale('id');
-  const hijriMoment = moment(n).subtract(1, 'days');
-  const hijriBulan = ['Muharram','Safar','Rabiul Awal','Rabiul Akhir','Jumadil Awal','Jumadil Akhir','Rajab','Syaban','Ramadhan','Syawal','Dzulkaidah','Dzulhijjah'];
-  const hijri = hijriMoment.format('iD') + ' ' + hijriBulan[hijriMoment.iMonth()] + ' ' + hijriMoment.iYear() + ' H';
+    moment.locale('id');
+    const hijriMoment = moment(n).subtract(1, 'days');
+    const hijriBulan = ['Muharram','Safar','Rabiul Awal','Rabiul Akhir','Jumadil Awal','Jumadil Akhir','Rajab','Syaban','Ramadhan','Syawal','Dzulkaidah','Dzulhijjah'];
+    const hijri = hijriMoment.format('iD') + ' ' + hijriBulan[hijriMoment.iMonth()] + ' ' + hijriMoment.iYear() + ' H';
 
-  // Format tanggal Masehi
-  const hari=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'][n.getDay()];
-  const bulan=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'][n.getMonth()];
-  const tgl=String(n.getDate()).padStart(2,'0');
+    const hari=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'][n.getDay()];
+    const bulan=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'][n.getMonth()];
+    const tgl=String(n.getDate()).padStart(2,'0');
+
+    cachedHijri = hari+' '+pas+', '+tgl+' '+bulan+' '+n.getFullYear()+'<br>'+
+      '<span style="color:#0ea5e9;font-size:13px">'+hijri+'</span>';
+    lastHijriDate = dateKey;
+    document.getElementById('tanggalHomeBig').innerHTML = cachedHijri;
+  }
 
   document.getElementById('jamHomeBig').textContent=h+':'+m+':'+s;
-  document.getElementById('tanggalHomeBig').innerHTML=
-    hari+' '+pas+', '+tgl+' '+bulan+' '+n.getFullYear()+'<br>'+
-    '<span style="color:#0ea5e9;font-size:13px">'+hijri+'</span>';
-
   document.getElementById('jam').textContent=h+':'+m+':'+s;
 }
 
@@ -131,8 +132,20 @@ async function openC(t){cur=t;$("#camModal").classList.replace("hidden","flex");
 function closeC(){$("#camModal").classList.replace("flex","hidden");$("#camWatermark").classList.add("hidden");clearInterval(window.wmTimer);if(str)str.getTracks().forEach(t=>t.stop())}
 $("#cancelCam").onclick=closeC;
 $("#snapBtn").onclick=async()=>{const v=$("#video"),c=$("#canvas"),x=c.getContext("2d"),s=Math.min(720/v.videoWidth,1);c.width=v.videoWidth*s;c.height=v.videoHeight*s;x.drawImage(v,0,0,c.width,c.height);const n=new Date;x.shadowColor="rgba(0,0,0,0.8)";x.shadowBlur=4;x.fillStyle="#fff";x.font=`${22*s}px sans-serif`;x.fillText(user.nama,20*s,c.height-70*s);x.font=`${18*s}px sans-serif`;x.fillText(window.pilihLokasi||userLoc,20*s,c.height-45*s);x.fillText(`${fD(n)} ${fW(n)}`,20*s,c.height-20*s);closeC();$("#statusMsg").textContent="Mengirim...";try{const[lt,ln]=userLoc.split(",");const p=c.toDataURL("image/jpeg",.72);await api({action:"absen",username:user.username,type:cur,photo:p,lat:lt||0,lng:ln||0,lokasi:window.pilihLokasi||''});$("#statusMsg").textContent="Berhasil!";setTimeout(loadT,800)}catch(e){$("#statusMsg").textContent=e.message}};
-async function loadR(){const r=await api({action:"getRekap",username:user.username}),b=$("#rekapBody");b.innerHTML="";let h=0;for(let i=1;i<=31;i++){const t=r[i]||{};t.in&&h++;b.innerHTML+=`<tr class="border-t border-slate-200"><td class="py-1">${String(i).padStart(2,"0")}</td><td class="text-center font-mono">${t.in||"-"}</td><td class="text-center font-mono">${t.out||"-"}</td></tr>`}$("#totalKerja").textContent=`Total: ${h} hari`;$("#rekapTitle").textContent="Rekap "+new Date().toLocaleString("id-ID",{month:"long",year:"numeric"})}
-$("#refreshBtn").onclick=()=>{sessionStorage.removeItem("getRekap_"+user.username);loadR()};
+async function loadR(){
+  const r=await api({action:"getRekap",username:user.username});
+  const b=$("#rekapBody");
+  let h=0;
+  let html = ''; // tampung dulu
+  for(let i=1;i<=31;i++){
+    const t=r[i]||{};
+    t.in&&h++;
+    html+=`<tr class="border-t border-slate-200"><td class="py-1">${String(i).padStart(2,"0")}</td><td class="text-center font-mono">${t.in||"-"}</td><td class="text-center font-mono">${t.out||"-"}</td></tr>`;
+  }
+  b.innerHTML = html; // sekali aja
+  $("#totalKerja").textContent=`Total: ${h} hari`;
+  $("#rekapTitle").textContent="Rekap "+new Date().toLocaleString("id-ID",{month:"long",year:"numeric"})
+}
 async function openProfile(){show("profileView");$("#profileMsg").textContent="";try{const p=await api({action:"getProfile",username:user.username});$("#profileAvatar").src=fixFoto(p.foto);$("#pfNama").value=p.nama;$("#pfUsername").value=p.username;$("#pfNoHp").value=p.noHp||"";$("#pfAlamat").value=p.alamat||"";$("#pfNoRek").value=p.noRek||"";$("#pfTtl").value=p.ttl||"";profilePhotoData=null}catch(e){$("#profileMsg").textContent=e.message}}
 $("#changePhotoBtn").onclick=()=>$("#photoInput").click();
 $("#photoInput").onchange=async e=>{const f=e.target.files[0];if(!f)return;profilePhotoData=await kompres(f,600,.75);$("#profileAvatar").src=profilePhotoData};
