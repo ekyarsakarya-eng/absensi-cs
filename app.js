@@ -7,8 +7,34 @@ const fixFoto=u=>{if(!u)return'icon-192.png';const i=(u.match(/[-\w]{25,}/)||[])
 const fW=d=>new Intl.DateTimeFormat('id-ID',{timeZone:'Asia/Jakarta',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).format(d);
 const fD=d=>new Intl.DateTimeFormat('id-ID',{timeZone:'Asia/Jakarta',weekday:'long',day:'2-digit',month:'long',year:'numeric'}).format(d);
 
-const apiCache={get:k=>{const v=sessionStorage.getItem(k);if(!v)return null;const o=JSON.parse(v);return Date.now()-o.t<5000?o.d:null},set:(k,d)=>sessionStorage.setItem(k,JSON.stringify({t:Date.now(),d}))};
-async function api(p){const k=p.action+"_"+(p.username||"");if(p.action==="getRekap"&&apiCache.get(k))return apiCache.get(k);const r=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"text/plain"},body:JSON.stringify(p),keepalive:true});const j=await r.json();if(j.error)throw new Error(j.error);if(p.action==="getRekap")apiCache.set(k,j);return j}
+// GANTI FUNGSI api() YANG LAMA DENGAN INI
+const apiCallbacks = {};
+window.apiCallback = (data, id) => {
+  apiCallbacks[id]?.(data);
+  delete apiCallbacks[id];
+};
+
+async function api(p){
+  const k=p.action+"_"+(p.username||"");
+  if(p.action==="getRekap" && apiCache.get(k)) return apiCache.get(k);
+
+  return new Promise((resolve, reject) => {
+    const id = 'cb_' + Date.now() + '_' + Math.random().toString(36).slice(2);
+    apiCallbacks[id] = (data) => {
+      if(data.error) reject(new Error(data.error));
+      else {
+        if(p.action==="getRekap") apiCache.set(k, data);
+        resolve(data);
+      }
+    };
+    const script = document.createElement('script');
+    const params = new URLSearchParams({...p, callback: 'apiCallback', _cbid: id});
+    script.src = `${API_URL}?${params}`;
+    script.onerror = () => reject(new Error('Network error'));
+    document.head.appendChild(script);
+    script.onload = () => script.remove();
+  });
+}
 
 // === INI YANG DIPERBAIKI ===
 async function loadLokasi(){
