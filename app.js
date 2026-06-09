@@ -1,4 +1,4 @@
-const API_URL='https://script.google.com/macros/s/AKfycbwKWbxAmhxrZiA6o8xKQjEzyiR7GRZuimvh2KxcVFbf_CGfGqaQOegOOMQR-c9AYNqk/exec';
+const API_URL='https://script.google.com/macros/s/AKfycbxtru3eT8Zn6wMpWqjfLQPctuKThGFDPSIbRXKI1HInJYoQ5QnXqQZGYST68brYJas8/exec'; // GANTI PAKE URL BARU LU
 let user=null,cur=null,str=null,userLoc='-',profilePhotoData=null;
 let LOCATIONS = {};
 let lastHijriDate = '', cachedHijri = '';
@@ -33,7 +33,7 @@ async function api(p){
   const k=p.action+"_"+(p.username||"");
   if(p.action==="getRekap" && apiCache.get(k)) return apiCache.get(k);
 
-  // POST untuk absen & updateProfile karena ada upload
+  // POST untuk absen & updateProfile karena ada upload base64
   if(p.action==="absen" || p.action==="updateProfile"){
     const r=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"text/plain"},body:JSON.stringify(p),keepalive:true});
     const j=await r.json();
@@ -54,9 +54,20 @@ async function api(p){
     const script = document.createElement('script');
     const params = new URLSearchParams({...p, callback: 'apiCallback', _cbid: id});
     script.src = `${API_URL}?${params}`;
-    script.onerror = () => reject(new Error('Network error'));
+    script.onerror = () => {
+      console.error('JSONP failed:', script.src);
+      reject(new Error('Network error'));
+    };
     document.head.appendChild(script);
     script.onload = () => script.remove();
+    // Timeout 10s
+    setTimeout(() => {
+      if(apiCallbacks[id]) {
+        delete apiCallbacks[id];
+        script.remove();
+        reject(new Error('Timeout'));
+      }
+    }, 10000);
   });
 }
 
@@ -83,7 +94,18 @@ async function loadLokasi(){
 async function kompres(f,m=720,q=.72){const b=await createImageBitmap(f),s=Math.min(m/b.width,m/b.height,1),c=document.createElement("canvas");c.width=b.width*s;c.height=b.height*s;c.getContext("2d",{willReadFrequently:true}).drawImage(b,0,0,c.width,c.height);return c.toDataURL("image/jpeg",q)}
 function show(i){document.querySelectorAll("#app>div").forEach(v=>v.classList.add("hidden"));$("#"+i).classList.remove("hidden")}
 
-$("#loginForm").onsubmit=async e=>{e.preventDefault();$("#loginError").classList.add("hidden");try{user=await api({action:"login",username:$("#username").value.trim(),password:$("#password").value});localStorage.absensi_user=JSON.stringify(user);init()}catch(t){$("#loginError").textContent=t.message;$("#loginError").classList.remove("hidden")}};
+$("#loginForm").onsubmit=async e=>{
+  e.preventDefault();
+  $("#loginError").classList.add("hidden");
+  try{
+    user=await api({action:"login",username:$("#username").value.trim(),password:$("#password").value});
+    localStorage.absensi_user=JSON.stringify(user);
+    init()
+  }catch(t){
+    $("#loginError").textContent=t.message;
+    $("#loginError").classList.remove("hidden")
+  }
+};
 $("#togglePass").onclick=()=>{const p=$("#password");p.type=p.type==="password"?"text":"password";$("#togglePass").textContent=p.type==="password"?"👁":"🙈"};
 
 async function init(){
@@ -150,7 +172,33 @@ $("#cardRekap").onclick=()=>{show("rekapView");loadR()};
 $("#cardProfil").onclick=()=>openProfile();
 document.querySelectorAll("[data-back]").forEach(b=>b.onclick=()=>show("homeView"));
 
-async function loadT(){try{const a=await api({action:"getAbsensi",username:user.username});$("#timeIn").textContent=a.masuk||"-";$("#timeOut").textContent=a.pulang||"-";const i=$("#btnIn"),o=$("#btnOut");i.disabled=o.disabled=false;i.classList.remove("opacity-40");o.classList.remove("opacity-40");i.textContent="Masuk";o.textContent="Pulang";if(a.masuk&&!a.pulang){i.disabled=true;i.classList.add("opacity-40");i.textContent="Sudah Masuk"}else if(a.masuk&&a.pulang){i.disabled=o.disabled=true;i.classList.add("opacity-40");o.classList.add("opacity-40");i.textContent="Selesai";o.textContent="Selesai"}else{o.disabled=true;o.classList.add("opacity-40")}}catch(e){}}
+async function loadT(){
+  try{
+    const a=await api({action:"getAbsensi",username:user.username});
+    $("#timeIn").textContent=a.masuk||"-";
+    $("#timeOut").textContent=a.pulang||"-";
+    const i=$("#btnIn"),o=$("#btnOut");
+    i.disabled=o.disabled=false;
+    i.classList.remove("opacity-40");
+    o.classList.remove("opacity-40");
+    i.textContent="Masuk";
+    o.textContent="Pulang";
+    if(a.masuk&&!a.pulang){
+      i.disabled=true;
+      i.classList.add("opacity-40");
+      i.textContent="Sudah Masuk"
+    }else if(a.masuk&&a.pulang){
+      i.disabled=o.disabled=true;
+      i.classList.add("opacity-40");
+      o.classList.add("opacity-40");
+      i.textContent="Selesai";
+      o.textContent="Selesai"
+    }else{
+      o.disabled=true;
+      o.classList.add("opacity-40")
+    }
+  }catch(e){}
+}
 
 $("#btnIn").onclick=()=>pilihLokasi();
 $("#btnOut").onclick=()=>{window.pilihLokasi=null;openC("out")};
@@ -168,11 +216,65 @@ function pilihLokasi(){
 }
 $("#cancelLokasi").onclick=()=>$("#lokasiModal").classList.replace("flex","hidden");
 
-async function openC(t){cur=t;$("#camModal").classList.replace("hidden","flex");try{str=await navigator.mediaDevices.getUserMedia({video:{facingMode:"user",width:1280}});$("#video").srcObject=str}catch(e){alert("Kamera gagal: "+e.message);closeC();return}$("#camWatermark").classList.remove("hidden");$("#wmNama").textContent=user.nama;if(navigator.geolocation){navigator.geolocation.getCurrentPosition(p=>{userLoc=`${p.coords.latitude.toFixed(5)},${p.coords.longitude.toFixed(5)}`;$("#wmLokasi").textContent=(window.pilihLokasi||'')+' '+userLoc},()=>{userLoc='0,0';$("#wmLokasi").textContent="-"})}clearInterval(window.wmTimer);window.wmTimer=setInterval(()=>{$("#wmWaktu").textContent=fW(new Date)+" WIB"},500)}
-function closeC(){$("#camModal").classList.replace("flex","hidden");$("#camWatermark").classList.add("hidden");clearInterval(window.wmTimer);if(str)str.getTracks().forEach(t=>t.stop())}
+async function openC(t){
+  cur=t;
+  $("#camModal").classList.replace("hidden","flex");
+  try{
+    str=await navigator.mediaDevices.getUserMedia({video:{facingMode:"user",width:1280}});
+    $("#video").srcObject=str
+  }catch(e){
+    alert("Kamera gagal: "+e.message);
+    closeC();
+    return
+  }
+  $("#camWatermark").classList.remove("hidden");
+  $("#wmNama").textContent=user.nama;
+  if(navigator.geolocation){
+    navigator.geolocation.getCurrentPosition(p=>{
+      userLoc=`${p.coords.latitude.toFixed(5)},${p.coords.longitude.toFixed(5)}`;
+      $("#wmLokasi").textContent=(window.pilihLokasi||'')+' '+userLoc
+    },()=>{
+      userLoc='0,0';
+      $("#wmLokasi").textContent="-"
+    })
+  }
+  clearInterval(window.wmTimer);
+  window.wmTimer=setInterval(()=>{$("#wmWaktu").textContent=fW(new Date)+" WIB"},500)
+}
+
+function closeC(){
+  $("#camModal").classList.replace("flex","hidden");
+  $("#camWatermark").classList.add("hidden");
+  clearInterval(window.wmTimer);
+  if(str)str.getTracks().forEach(t=>t.stop())
+}
 $("#cancelCam").onclick=closeC;
 
-$("#snapBtn").onclick=async()=>{const v=$("#video"),c=$("#canvas"),x=c.getContext("2d"),s=Math.min(720/v.videoWidth,1);c.width=v.videoWidth*s;c.height=v.videoHeight*s;x.drawImage(v,0,0,c.width,c.height);const n=new Date;x.shadowColor="rgba(0,0,0,0.8)";x.shadowBlur=4;x.fillStyle="#fff";x.font=`${22*s}px sans-serif`;x.fillText(user.nama,20*s,c.height-70*s);x.font=`${18*s}px sans-serif`;x.fillText(window.pilihLokasi||userLoc,20*s,c.height-45*s);x.fillText(`${fD(n)} ${fW(n)}`,20*s,c.height-20*s);closeC();$("#statusMsg").textContent="Mengirim...";try{const[lt,ln]=userLoc.split(",");const p=c.toDataURL("image/jpeg",.72);await api({action:"absen",username:user.username,type:cur,photo:p,lat:lt||0,lng:ln||0,lokasi:window.pilihLokasi||''});$("#statusMsg").textContent="Berhasil!";setTimeout(loadT,800)}catch(e){$("#statusMsg").textContent=e.message}};
+$("#snapBtn").onclick=async()=>{
+  const v=$("#video"),c=$("#canvas"),x=c.getContext("2d"),s=Math.min(720/v.videoWidth,1);
+  c.width=v.videoWidth*s;c.height=v.videoHeight*s;
+  x.drawImage(v,0,0,c.width,c.height);
+  const n=new Date;
+  x.shadowColor="rgba(0,0,0,0.8)";
+  x.shadowBlur=4;
+  x.fillStyle="#fff";
+  x.font=`${22*s}px sans-serif`;
+  x.fillText(user.nama,20*s,c.height-70*s);
+  x.font=`${18*s}px sans-serif`;
+  x.fillText(window.pilihLokasi||userLoc,20*s,c.height-45*s);
+  x.fillText(`${fD(n)} ${fW(n)}`,20*s,c.height-20*s);
+  closeC();
+  $("#statusMsg").textContent="Mengirim...";
+  try{
+    const[lt,ln]=userLoc.split(",");
+    const p=c.toDataURL("image/jpeg",.72);
+    await api({action:"absen",username:user.username,type:cur,photo:p,lat:lt||0,lng:ln||0,lokasi:window.pilihLokasi||''});
+    $("#statusMsg").textContent="Berhasil!";
+    setTimeout(loadT,800)
+  }catch(e){
+    $("#statusMsg").textContent=e.message
+  }
+};
 
 // === LOAD REKAP OPTIMIZED: NO REFLOW LOOP ===
 async function loadR(){
@@ -192,13 +294,59 @@ async function loadR(){
 
 $("#refreshBtn").onclick=()=>{sessionStorage.removeItem("getRekap_"+user.username);loadR()};
 
-async function openProfile(){show("profileView");$("#profileMsg").textContent="";try{const p=await api({action:"getProfile",username:user.username});$("#profileAvatar").src=fixFoto(p.foto);$("#pfNama").value=p.nama;$("#pfUsername").value=p.username;$("#pfNoHp").value=p.noHp||"";$("#pfAlamat").value=p.alamat||"";$("#pfNoRek").value=p.noRek||"";$("#pfTtl").value=p.ttl||"";profilePhotoData=null}catch(e){$("#profileMsg").textContent=e.message}}
+async function openProfile(){
+  show("profileView");
+  $("#profileMsg").textContent="";
+  try{
+    const p=await api({action:"getProfile",username:user.username});
+    $("#profileAvatar").src=fixFoto(p.foto);
+    $("#pfNama").value=p.nama;
+    $("#pfUsername").value=p.username;
+    $("#pfNoHp").value=p.noHp||"";
+    $("#pfAlamat").value=p.alamat||"";
+    $("#pfNoRek").value=p.noRek||"";
+    $("#pfTtl").value=p.ttl||"";
+    profilePhotoData=null
+  }catch(e){
+    $("#profileMsg").textContent=e.message
+  }
+}
 
 $("#changePhotoBtn").onclick=()=>$("#photoInput").click();
 $("#photoInput").onchange=async e=>{const f=e.target.files[0];if(!f)return;profilePhotoData=await kompres(f,600,.75);$("#profileAvatar").src=profilePhotoData};
 
-document.querySelectorAll("[data-toggle]").forEach(b=>{b.onclick=()=>{const i=b.getAttribute("data-toggle"),e=$("#"+i);e.type=e.type==="password"?"text":"password";b.textContent=e.type==="password"?"👁":"🙈"}});
+document.querySelectorAll("[data-toggle]").forEach(b=>{
+  b.onclick=()=>{
+    const i=b.getAttribute("data-toggle"),e=$("#"+i);
+    e.type=e.type==="password"?"text":"password";
+    b.textContent=e.type==="password"?"👁":"🙈"
+  }
+});
 
-$("#profileForm").onsubmit=async e=>{e.preventDefault();const p1=$("#pfPass1").value,p2=$("#pfPass2").value;if(p1&&p1!==p2)return void($("#profileMsg").textContent="Password tidak sama");$("#profileMsg").textContent="Menyimpan...";const d={noHp:$("#pfNoHp").value,alamat:$("#pfAlamat").value,noRek:$("#pfNoRek").value,ttl:$("#pfTtl").value};p1&&(d.password=p1);profilePhotoData&&(d.fotoProfil=profilePhotoData);try{const r=await api({action:"updateProfile",username:user.username,data:d});r.foto&&(user.foto=fixFoto(r.foto),localStorage.absensi_user=JSON.stringify(user),$("#avatarHome").src=user.foto);$("#profileMsg").textContent="Berhasil disimpan";$("#pfPass1").value="";$("#pfPass2").value="";setTimeout(()=>show("homeView"),800)}catch(t){$("#profileMsg").textContent=t.message}};
+$("#profileForm").onsubmit=async e=>{
+  e.preventDefault();
+  const p1=$("#pfPass1").value,p2=$("#pfPass2").value;
+  if(p1&&p1!==p2)return void($("#profileMsg").textContent="Password tidak sama");
+  $("#profileMsg").textContent="Menyimpan...";
+  const d={noHp:$("#pfNoHp").value,alamat:$("#pfAlamat").value,noRek:$("#pfNoRek").value,ttl:$("#pfTtl").value};
+  p1&&(d.password=p1);
+  profilePhotoData&&(d.fotoProfil=profilePhotoData);
+  try{
+    const r=await api({action:"updateProfile",username:user.username,data:d});
+    r.foto&&(user.foto=fixFoto(r.foto),localStorage.absensi_user=JSON.stringify(user),$("#avatarHome").src=user.foto);
+    $("#profileMsg").textContent="Berhasil disimpan";
+    $("#pfPass1").value="";
+    $("#pfPass2").value="";
+    setTimeout(()=>show("homeView"),800)
+  }catch(t){
+    $("#profileMsg").textContent=t.message
+  }
+};
 
-window.onload=()=>{const s=localStorage.absensi_user;s?((e=>{try{user=JSON.parse(e),init()}catch{localStorage.removeItem("absensi_user"),show("loginView")}})(s)):show("loginView")};
+window.onload=()=>{
+  const s=localStorage.absensi_user;
+  s?((e=>{
+    try{user=JSON.parse(e),init()}
+    catch{localStorage.removeItem("absensi_user"),show("loginView")}
+  })(s)):show("loginView")
+};
