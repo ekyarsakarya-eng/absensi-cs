@@ -1,9 +1,17 @@
-const API_URL='https://script.google.com/macros/s/AKfycbxtru3eT8Zn6wMpWqjfLQPctuKThGFDPSIbRXKI1HInJYoQ5QnXqQZGYST68brYJas8/exec'; // GANTI PAKE URL BARU LU
+const API_URL='https://script.google.com/macros/s/AKfycbxtru3eT8Zn6wMpWqjfLQPctuKThGFDPSIbRXKI1HInJYoQ5QnXqQZGYST68brYJas8/exec';
 let deferredPrompt = null;
 let isInstalled = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
 let user=null,cur=null,str=null,userLoc='-',profilePhotoData=null;
 let LOCATIONS = {};
 let lastHijriDate = '', cachedHijri = '';
+
+// === VERSI BARU - auto clear cache lama saat logout/login ===
+const APP_VERSION='2.7.1';
+if(localStorage.app_version && localStorage.app_version!== APP_VERSION){
+  if('caches' in window){ caches.keys().then(k=>k.forEach(n=>caches.delete(n))); }
+  if('serviceWorker' in navigator){ navigator.serviceWorker.getRegistrations().then(rs=>rs.forEach(r=>r.unregister())); }
+}
+localStorage.app_version = APP_VERSION;
 
 const $=s=>document.querySelector(s);
 const fixFoto=u=>{if(!u)return'icon-192.png';const i=(u.match(/[-\w]{25,}/)||[])[0];return i?`https://lh3.googleusercontent.com/d/${i}`:u};
@@ -51,7 +59,6 @@ $("#btnInstallPWA").onclick = async () => {
   deferredPrompt = null;
 };
 
-// Kalau udah pernah install tapi dibuka via browser, paksa close
 if(localStorage.pwa_installed === '1' &&!isInstalled){
   document.addEventListener('DOMContentLoaded', () => {
     document.body.innerHTML = `
@@ -65,7 +72,7 @@ if(localStorage.pwa_installed === '1' &&!isInstalled){
   throw new Error('FORCE_INSTALL');
 }
 
-// === API PATCH: JSONP + CACHE OPTIMIZED ===
+// === API PATCH: JSONP + RETRY ===
 const apiCache = {
   get: k => {
     const v = sessionStorage.getItem(k);
@@ -84,18 +91,24 @@ async function api(p){
   const k=p.action+"_"+(p.username||"");
   if(p.action==="getRekap" && apiCache.get(k)) return apiCache.get(k);
 
-  // POST untuk absen & updateProfile karena ada upload
+  // POST untuk absen & updateProfile - HAPUS keepalive, tambah retry
   if(p.action==="absen" || p.action==="updateProfile"){
-    const r=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"text/plain"},body:JSON.stringify(p),keepalive:true});
-    const j=await r.json();
-    if(j.error)throw new Error(j.error);
-    return j;
+    for(let attempt=1; attempt<=2; attempt++){
+      try{
+        const r=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(p)});
+        if(!r.ok) throw new Error('HTTP '+r.status);
+        const j=await r.json();
+        if(j.error)throw new Error(j.error);
+        return j;
+      }catch(err){
+        if(attempt===2) throw err;
+        await new Promise(res=>setTimeout(res,700));
+      }
+    }
   }
 
-  // JSONP FIX: Callback unique + cleanup
   return new Promise((resolve, reject) => {
     const cbName = 'cb_' + Date.now() + '_' + Math.random().toString(36).slice(2);
-    
     window[cbName] = (data) => {
       delete window[cbName];
       script.remove();
@@ -105,7 +118,6 @@ async function api(p){
         resolve(data);
       }
     };
-    
     const script = document.createElement('script');
     const params = new URLSearchParams({...p, callback: cbName});
     script.src = `${API_URL}?${params}`;
@@ -115,8 +127,6 @@ async function api(p){
       reject(new Error('Network error'));
     };
     document.head.appendChild(script);
-    
-    // Timeout 8 detik
     setTimeout(() => {
       if(window[cbName]) {
         delete window[cbName];
@@ -147,7 +157,7 @@ async function loadLokasi(){
   }catch(e){ console.log('pakai lokasi default'); }
 }
 
-async function kompres(f,m=720,q=.72){const b=await createImageBitmap(f),s=Math.min(m/b.width,m/b.height,1),c=document.createElement("canvas");c.width=b.width*s;c.height=b.height*s;c.getContext("2d",{willReadFrequently:true}).drawImage(b,0,0,c.width,c.height);return c.toDataURL("image/jpeg",q)}
+async function kompres(f,m=600,q=.65){const b=await createImageBitmap(f),s=Math.min(m/b.width,m/b.height,1),c=document.createElement("canvas");c.width=b.width*s;c.height=b.height*s;c.getContext("2d",{willReadFrequently:true}).drawImage(b,0,0,c.width,c.height);return c.toDataURL("image/jpeg",q)}
 function show(i){document.querySelectorAll("#app>div").forEach(v=>v.classList.add("hidden"));$("#"+i).classList.remove("hidden")}
 
 $("#loginForm").onsubmit=async e=>{
@@ -165,7 +175,6 @@ $("#loginForm").onsubmit=async e=>{
 $("#togglePass").onclick=()=>{const p=$("#password");p.type=p.type==="password"?"text":"password";$("#togglePass").textContent=p.type==="password"?"👁":"🙈"};
 
 async function init(){
-  // LAZY LOAD MOMENT-HIJRI
   if(!window.moment){
     await new Promise(r=>{
       const s1=document.createElement('script');
@@ -179,7 +188,6 @@ async function init(){
       document.head.appendChild(s1);
     });
   }
-
   show("homeView");
   $("#namaHome").textContent=user.nama;
   $("#avatarHome").src=fixFoto(user.foto);
@@ -189,35 +197,29 @@ async function init(){
   await loadLokasi();
 }
 
-// === TICK OPTIMIZED: HITUNG HIJRIAH CUMA GANTI HARI ===
 function tick(){
   const n=new Date;
   const h=String(n.getHours()).padStart(2,'0');
   const m=String(n.getMinutes()).padStart(2,'0');
   const s=String(n.getSeconds()).padStart(2,'0');
-
   const dateKey = n.getFullYear()+'-'+n.getMonth()+'-'+n.getDate();
   if(dateKey!== lastHijriDate){
     const pasaran=['Legi','Pahing','Pon','Wage','Kliwon'];
     const ref=new Date(2026,5,7);
     const selisih=Math.floor((n-ref)/86400000);
     const pas=pasaran[(3+selisih+1000)%5];
-
     moment.locale('id');
     const hijriMoment = moment(n).subtract(1, 'days');
     const hijriBulan = ['Muharram','Safar','Rabiul Awal','Rabiul Akhir','Jumadil Awal','Jumadil Akhir','Rajab','Syaban','Ramadhan','Syawal','Dzulkaidah','Dzulhijjah'];
     const hijri = hijriMoment.format('iD') + ' ' + hijriBulan[hijriMoment.iMonth()] + ' ' + hijriMoment.iYear() + ' H';
-
     const hari=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'][n.getDay()];
     const bulan=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'][n.getMonth()];
     const tgl=String(n.getDate()).padStart(2,'0');
-
     cachedHijri = hari+' '+pas+', '+tgl+' '+bulan+' '+n.getFullYear()+'<br>'+
       '<span style="color:#0ea5e9;font-size:13px">'+hijri+'</span>';
     lastHijriDate = dateKey;
     document.getElementById('tanggalHomeBig').innerHTML = cachedHijri;
   }
-
   document.getElementById('jamHomeBig').textContent=h+':'+m+':'+s;
   document.getElementById('jam').textContent=h+':'+m+':'+s;
 }
@@ -253,7 +255,7 @@ async function loadT(){
       o.disabled=true;
       o.classList.add("opacity-40")
     }
-  }catch(e){}
+  }catch(e){ $("#statusMsg").textContent="Gagal load: "+e.message; }
 }
 
 $("#btnIn").onclick=()=>pilihLokasi();
@@ -276,10 +278,18 @@ async function openC(t){
   cur=t;
   $("#camModal").classList.replace("hidden","flex");
   try{
-    str=await navigator.mediaDevices.getUserMedia({video:{facingMode:"user",width:1280}});
-    $("#video").srcObject=str
+    const videoEl = $("#video");
+    let constraints = { video: { facingMode: {ideal:"user"}, width:{ideal:720,max:1280}, height:{ideal:960,max:1280} }, audio:false };
+    try{
+      str = await navigator.mediaDevices.getUserMedia(constraints);
+    }catch(e1){
+      str = await navigator.mediaDevices.getUserMedia({video:true,audio:false});
+    }
+    videoEl.srcObject = str;
+    videoEl.setAttribute('playsinline', true);
+    await videoEl.play().catch(()=>{});
   }catch(e){
-    alert("Kamera gagal: "+e.message);
+    alert("Kamera gagal: "+e.message+"\nPastikan izin kamera aktif di Pengaturan.");
     closeC();
     return
   }
@@ -307,7 +317,7 @@ function closeC(){
 $("#cancelCam").onclick=closeC;
 
 $("#snapBtn").onclick=async()=>{
-  const v=$("#video"),c=$("#canvas"),x=c.getContext("2d"),s=Math.min(720/v.videoWidth,1);
+  const v=$("#video"),c=$("#canvas"),x=c.getContext("2d"),s=Math.min(600/v.videoWidth,1);
   c.width=v.videoWidth*s;c.height=v.videoHeight*s;
   x.drawImage(v,0,0,c.width,c.height);
   const n=new Date;
@@ -323,7 +333,7 @@ $("#snapBtn").onclick=async()=>{
   $("#statusMsg").textContent="Mengirim...";
   try{
     const[lt,ln]=userLoc.split(",");
-    const p=c.toDataURL("image/jpeg",.72);
+    const p=c.toDataURL("image/jpeg",.65);
     await api({action:"absen",username:user.username,type:cur,photo:p,lat:lt||0,lng:ln||0,lokasi:window.pilihLokasi||''});
     $("#statusMsg").textContent="Berhasil!";
     setTimeout(loadT,800)
@@ -332,7 +342,6 @@ $("#snapBtn").onclick=async()=>{
   }
 };
 
-// === LOAD REKAP OPTIMIZED: NO REFLOW LOOP ===
 async function loadR(){
   const r=await api({action:"getRekap",username:user.username});
   const b=$("#rekapBody");
