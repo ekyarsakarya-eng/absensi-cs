@@ -139,13 +139,13 @@ async function api(p){
 
 async function loadLokasi(){
   LOCATIONS = {
-    "Balaikota":{lat:-6.9825,lng:110.4131,radius:100},
-    "Gd Juang":{lat:-6.983,lng:110.4135,radius:100},
-    "Gd Pandanaran":{lat:-6.984,lng:110.4105,radius:100},
-    "Gd PKK":{lat:-6.9837,lng:110.4125,radius:100},
-    "Rumdin Walikota":{lat:-6.99,lng:110.42,radius:100},
-    "Rumdin Wakil Walikota":{lat:-6.991,lng:110.421,radius:100},
-    "Gedawang":{lat:-7.042,lng:110.424,radius:100}
+    "BALAIKOTA":{lat:-6.9825,lng:110.4131,radius:100},
+    "GEDUNG JUANG":{lat:-6.983,lng:110.4135,radius:100},
+    "GEDUNG PANDANARAN":{lat:-6.984,lng:110.4105,radius:100},
+    "GEDUNG PKK":{lat:-6.9837,lng:110.4125,radius:100},
+    "RUMDIN WALIKOTA":{lat:-6.99,lng:110.42,radius:100},
+    "RUMDIN WAKIL WALIKOTA":{lat:-6.991,lng:110.421,radius:100},
+    "GEDAWANG":{lat:-7.042,lng:110.424,radius:100}
   };
   try{
     const data = await api({action:'getLokasi'});
