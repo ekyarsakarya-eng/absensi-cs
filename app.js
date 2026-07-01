@@ -6,7 +6,7 @@ let LOCATIONS = {};
 let lastHijriDate = '', cachedHijri = '';
 
 // === VERSI BARU - auto clear cache lama saat logout/login ===
-const APP_VERSION='2.7.1';
+const APP_VERSION='2.7.2';
 if(localStorage.app_version && localStorage.app_version!== APP_VERSION){
   if('caches' in window){ caches.keys().then(k=>k.forEach(n=>caches.delete(n))); }
   if('serviceWorker' in navigator){ navigator.serviceWorker.getRegistrations().then(rs=>rs.forEach(r=>r.unregister())); }
@@ -88,7 +88,7 @@ const apiCache = {
 };
 
 async function api(p){
-  const k=p.action+"_"+(p.username||"");
+  const k=p.action+"_"+(p.username||"")+"_"+(p.bulan||"")+"_"+(p.tahun||"");
   if(p.action==="getRekap" && apiCache.get(k)) return apiCache.get(k);
 
   // POST untuk absen & updateProfile - HAPUS keepalive, tambah retry
@@ -342,22 +342,61 @@ $("#snapBtn").onclick=async()=>{
   }
 };
 
-async function loadR(){
-  const r=await api({action:"getRekap",username:user.username});
-  const b=$("#rekapBody");
-  let h=0;
+// === FUNGSI loadR YANG SUDAH DIMODIFIKASI ===
+async function loadR(bulan = null, tahun = null){
+  const params = {action:"getRekap", username:user.username};
+  if(bulan !== null) params.bulan = bulan;
+  if(tahun !== null) params.tahun = tahun;
+  
+  const r = await api(params);
+  const b = $("#rekapBody");
+  let h = 0;
   let html = '';
-  for(let i=1;i<=31;i++){
-    const t=r[i]||{};
-    t.in&&h++;
-    html+=`<tr class="border-t border-slate-200"><td class="py-1">${String(i).padStart(2,"0")}</td><td class="text-center font-mono">${t.in||"-"}</td><td class="text-center font-mono">${t.out||"-"}</td></tr>`;
+  
+  // Tentukan jumlah hari dalam bulan
+  const bulanInt = parseInt(bulan || new Date().getMonth());
+  const tahunInt = parseInt(tahun || new Date().getFullYear());
+  const daysInMonth = new Date(tahunInt, bulanInt + 1, 0).getDate();
+  
+  for(let i = 1; i <= daysInMonth; i++){
+    const t = r[i] || {};
+    if(t.in) h++;
+    const inTime = t.in || "-";
+    const outTime = t.out || "-";
+    html += `<tr class="border-t border-slate-200 hover:bg-slate-50">
+      <td class="py-2 font-semibold">${String(i).padStart(2,"0")}</td>
+      <td class="text-center font-mono text-sm ${inTime !== '-' ? 'text-emerald-600' : 'text-slate-400'}">${inTime}</td>
+      <td class="text-center font-mono text-sm ${outTime !== '-' ? 'text-rose-600' : 'text-slate-400'}">${outTime}</td>
+    </tr>`;
   }
+  
   b.innerHTML = html;
-  $("#totalKerja").textContent=`Total: ${h} hari`;
-  $("#rekapTitle").textContent="Rekap "+new Date().toLocaleString("id-ID",{month:"long",year:"numeric"})
+  $("#totalKerja").textContent = `Total Hadir: ${h} hari dari ${daysInMonth} hari`;
+  
+  const bulanNames = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+  $("#rekapTitle").textContent = "Rekap " + bulanNames[bulanInt] + " " + tahunInt;
 }
 
-$("#refreshBtn").onclick=()=>{sessionStorage.removeItem("getRekap_"+user.username);loadR()};
+// === EVENT LISTENER UNTUK REKAP ===
+$("#refreshBtn").onclick = () => {
+  const bulan = $("#bulanPicker").value;
+  const tahun = $("#tahunPicker").value;
+  sessionStorage.removeItem("getRekap_"+user.username+"_"+bulan+"_"+tahun);
+  loadR(bulan, tahun);
+};
+
+// Auto load saat selector berubah
+$("#bulanPicker").onchange = () => {
+  const bulan = $("#bulanPicker").value;
+  const tahun = $("#tahunPicker").value;
+  loadR(bulan, tahun);
+};
+
+$("#tahunPicker").onchange = () => {
+  const bulan = $("#bulanPicker").value;
+  const tahun = $("#tahunPicker").value;
+  loadR(bulan, tahun);
+};
 
 async function openProfile(){
   show("profileView");
