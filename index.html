@@ -48,7 +48,45 @@ h1,h3{font-weight:700!important}
 
   <div id="absensiView" class="hidden flex-1 flex flex-col px-5 py-6"><button data-back class="mb-3 text-sm text-slate-600 self-start">← Kembali</button><div class="glass rounded-3xl p-6 text-center flex-1 flex flex-col justify-center"><p id="jam" class="text-5xl font-light text-slate-900">--:--:--</p><p id="tanggal" class="text-sm text-slate-600 mt-1">-</p><div class="grid grid-cols-2 gap-4 mt-8"><button id="btnIn" class="py-4 rounded-2xl bg-emerald-600 text-white text-base btn">Masuk</button><button id="btnOut" class="py-4 rounded-2xl bg-rose-500 text-white text-base btn">Pulang</button></div><p class="text-xs text-slate-600 mt-4">In: <span id="timeIn" class="font-mono">-</span> | Out: <span id="timeOut" class="font-mono">-</span></p><p id="statusMsg" class="text-sky-700 text-sm h-5 mt-2"></p></div></div>
 
-  <div id="rekapView" class="hidden flex-1 flex flex-col px-5 py-6"><button data-back class="mb-3 text-sm text-slate-600 self-start">← Kembali</button><div class="glass rounded-3xl p-5 flex-1 flex flex-col"><div class="flex justify-between mb-3"><h3 id="rekapTitle" class="text-base">Rekap</h3><button id="refreshBtn" class="text-xs px-3 py-1.5 bg-slate-200 rounded-lg text-slate-700">Refresh</button></div><div class="flex-1 overflow-auto"><table class="w-full text-sm"><thead class="text-slate-600 sticky top-0 bg-white/90 backdrop-blur"><tr><th class="text-left py-2">Tgl</th><th>In</th><th>Out</th></tr></thead><tbody id="rekapBody" class="text-slate-800"></tbody></table></div><p id="totalKerja" class="text-xs text-center mt-3 text-slate-600"></p></div></div>
+  <div id="rekapView" class="hidden flex-1 flex flex-col px-5 py-6">
+    <button data-back class="mb-3 text-sm text-slate-600 self-start">← Kembali</button>
+    <div class="glass rounded-3xl p-5 flex-1 flex flex-col">
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-3 gap-2">
+        <h3 id="rekapTitle" class="text-base">Rekap</h3>
+        <div class="flex gap-2">
+          <select id="bulanPicker" class="px-3 py-1.5 rounded-xl border-2 border-slate-300 bg-white text-sm font-semibold">
+            <option value="0">Januari</option>
+            <option value="1">Februari</option>
+            <option value="2">Maret</option>
+            <option value="3">April</option>
+            <option value="4">Mei</option>
+            <option value="5">Juni</option>
+            <option value="6">Juli</option>
+            <option value="7">Agustus</option>
+            <option value="8">September</option>
+            <option value="9">Oktober</option>
+            <option value="10">November</option>
+            <option value="11">Desember</option>
+          </select>
+          <select id="tahunPicker" class="px-3 py-1.5 rounded-xl border-2 border-slate-300 bg-white text-sm font-semibold">
+            <option value="2025">2025</option>
+            <option value="2026">2026</option>
+            <option value="2027">2027</option>
+          </select>
+          <button id="refreshBtn" class="text-xs px-3 py-1.5 bg-sky-600 text-white rounded-xl font-semibold">Tampilkan</button>
+        </div>
+      </div>
+      <div class="flex-1 overflow-auto">
+        <table class="w-full text-sm">
+          <thead class="text-slate-600 sticky top-0 bg-white/90 backdrop-blur">
+            <tr><th class="text-left py-2">Tgl</th><th>In</th><th>Out</th></tr>
+          </thead>
+          <tbody id="rekapBody" class="text-slate-800"></tbody>
+        </table>
+      </div>
+      <p id="totalKerja" class="text-xs text-center mt-3 text-slate-600"></p>
+    </div>
+  </div>
 
   <div id="profileView" class="hidden flex-1 flex flex-col px-5 py-6">
     <button data-back class="mb-3 text-sm text-slate-600 self-start">← Kembali</button>
@@ -113,6 +151,6 @@ h1,h3{font-weight:700!important}
   </button>
   <p class="text-xs text-slate-500 mt-6">Setelah install, buka dari icon di layar utama</p>
 </div>
-<script src="app.js?v=34"></script>
+<script src="app.js?v=35"></script>
 </body>
 </html>
