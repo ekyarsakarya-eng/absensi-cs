@@ -277,10 +277,17 @@ function tick(){
     const hari=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'][n.getDay()];
     const bulan=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'][n.getMonth()];
     const tgl=String(n.getDate()).padStart(2,'0');
-    cachedHijri = hari+' '+pas+', '+tgl+' '+bulan+' '+n.getFullYear()+'<br>'+
-      '<span style="color:#0ea5e9;font-size:13px">'+hijri+'</span>';
+    
+    // Update home view date
+    const tanggalStr = hari+' '+pas+', '+tgl+' '+bulan+' '+n.getFullYear();
+    document.getElementById('tanggalHomeBig').innerHTML = tanggalStr;
+    document.getElementById('hijriHomeBig').innerHTML = hijri;
+    
+    // Update absensi view date
+    document.getElementById('tanggal').textContent = tanggalStr;
+    
+    cachedHijri = tanggalStr + '<br><span style="color:#0ea5e9;font-size:13px">'+hijri+'</span>';
     lastHijriDate = dateKey;
-    document.getElementById('tanggalHomeBig').innerHTML = cachedHijri;
   }
   document.getElementById('jamHomeBig').textContent=h+':'+m+':'+s;
   document.getElementById('jam').textContent=h+':'+m+':'+s;
