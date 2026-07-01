@@ -5,24 +5,57 @@ let user=null,cur=null,str=null,userLoc='-',profilePhotoData=null;
 let LOCATIONS = {};
 let lastHijriDate = '', cachedHijri = '';
 
-// === FORCE RE-LOGIN MECHANISM ===
-const APP_VERSION='2.7.2';
-const storedVersion = localStorage.getItem('app_version');
-
-if(storedVersion && storedVersion !== APP_VERSION){
-  // Ada update - clear semua dan force logout
-  localStorage.clear();
-  sessionStorage.clear();
-  if('caches' in window){ 
-    caches.keys().then(k=>k.forEach(n=>caches.delete(n))); 
-  }
-  if('serviceWorker' in navigator){ 
-    navigator.serviceWorker.getRegistrations().then(rs=>rs.forEach(r=>r.unregister())); 
-  }
-  alert('Aplikasi telah diperbarui ke versi ' + APP_VERSION + '.\n\nSilakan login ulang untuk menikmati fitur terbaru.');
+// === CHECK APP VERSION FROM SERVER ===
+async function checkAppVersion(){
+  return new Promise((resolve) => {
+    const cbName = 'cb_' + Date.now();
+    window[cbName] = (data) => {
+      resolve(data.version || null);
+      delete window[cbName];
+      script.remove();
+    };
+    const script = document.createElement('script');
+    script.src = API_URL + '?action=getAppVersion&callback=' + cbName;
+    script.onerror = () => {
+      delete window[cbName];
+      script.remove();
+      resolve(null);
+    };
+    document.head.appendChild(script);
+    setTimeout(() => {
+      if(window[cbName]){
+        delete window[cbName];
+        script.remove();
+        resolve(null);
+      }
+    }, 3000);
+  });
 }
 
-localStorage.setItem('app_version', APP_VERSION);
+// === APP VERSION & LOKASI VERSION CHECK ===
+const APP_VERSION='2.8.0';
+const storedVersion = localStorage.getItem('app_version');
+const storedLokasiVersion = localStorage.getItem('lokasi_version');
+
+// Check server version on load
+(async () => {
+  const serverVersion = await checkAppVersion();
+  const currentVersion = serverVersion || APP_VERSION;
+  
+  if(storedVersion && storedVersion !== currentVersion){
+    localStorage.clear();
+    sessionStorage.clear();
+    if('caches' in window){ 
+      caches.keys().then(k=>k.forEach(n=>caches.delete(n))); 
+    }
+    if('serviceWorker' in navigator){ 
+      navigator.serviceWorker.getRegistrations().then(rs=>rs.forEach(r=>r.unregister())); 
+    }
+    alert('🔄 Aplikasi telah diperbarui ke versi ' + currentVersion + '.\n\nSilakan login ulang untuk menikmati fitur terbaru.');
+  }
+  
+  localStorage.setItem('app_version', currentVersion);
+})();
 
 const $=s=>document.querySelector(s);
 const fixFoto=u=>{if(!u)return'icon-192.png';const i=(u.match(/[-\w]{25,}/)||[])[0];return i?`https://lh3.googleusercontent.com/d/${i}`:u};
@@ -147,6 +180,7 @@ async function api(p){
   });
 }
 
+// === FUNGSI BARU: Load Lokasi dengan Version Check ===
 async function loadLokasi(){
   LOCATIONS = {
     "BALAIKOTA":{lat:-6.9825,lng:110.4131,radius:100},
@@ -157,14 +191,32 @@ async function loadLokasi(){
     "RUMDIN WAKIL WALIKOTA":{lat:-6.991,lng:110.421,radius:100},
     "GEDAWANG":{lat:-7.042,lng:110.424,radius:100}
   };
+  
   try{
-    const data = await api({action:'getLokasi'});
+    const response = await api({action:'getLokasi'});
+    const data = response.lokasi || response;
+    const newVersion = response.version || '1.0.0';
+    
     if(Array.isArray(data) && data.length){
       const tmp = {};
       data.forEach(l=>{ if(l.nama) tmp[l.nama] = {lat:Number(l.lat),lng:Number(l.lng),radius:Number(l.radius)||100}; });
-      if(Object.keys(tmp).length) LOCATIONS = tmp;
+      if(Object.keys(tmp).length) {
+        LOCATIONS = tmp;
+        
+        if(storedLokasiVersion && storedLokasiVersion !== newVersion){
+          localStorage.clear();
+          sessionStorage.clear();
+          alert('📍 Data lokasi telah diperbarui.\n\nSilakan login ulang untuk menggunakan lokasi terbaru.');
+          location.reload();
+          return;
+        }
+        
+        localStorage.setItem('lokasi_version', newVersion);
+      }
     }
-  }catch(e){ console.log('pakai lokasi default'); }
+  }catch(e){ 
+    console.log('pakai lokasi default'); 
+  }
 }
 
 async function kompres(f,m=600,q=.65){const b=await createImageBitmap(f),s=Math.min(m/b.width,m/b.height,1),c=document.createElement("canvas");c.width=b.width*s;c.height=b.height*s;c.getContext("2d",{willReadFrequently:true}).drawImage(b,0,0,c.width,c.height);return c.toDataURL("image/jpeg",q)}
@@ -182,7 +234,7 @@ $("#loginForm").onsubmit=async e=>{
     $("#loginError").classList.remove("hidden")
   }
 };
-$("#togglePass").onclick=()=>{const p=$("#password");p.type=p.type==="password"?"text":"password";$("#togglePass").textContent=p.type==="password"?"👁":"🙈"};
+$("#togglePass").onclick=()=>{const p=$("#password");p.type=p.type==="password"?"text":"password";$("#togglePass").textContent=p.type==="password"?"👁":""};
 
 async function init(){
   if(!window.moment){
@@ -237,7 +289,6 @@ function tick(){
 $("#logoutBtn").onclick=()=>{localStorage.removeItem("absensi_user");location.reload()};
 $("#cardAbsensi").onclick=()=>{show("absensiView");loadT()};
 $("#cardRekap").onclick=()=>{
-  // Set default bulan/tahun saat ini
   const now = new Date();
   $("#bulanPicker").value = now.getMonth();
   $("#tahunPicker").value = now.getFullYear();
@@ -359,7 +410,6 @@ $("#snapBtn").onclick=async()=>{
   }
 };
 
-// === FUNGSI loadR YANG SUDAH DIMODIFIKASI ===
 async function loadR(bulan = null, tahun = null){
   const params = {action:"getRekap", username:user.username};
   if(bulan !== null) params.bulan = bulan;
@@ -370,7 +420,6 @@ async function loadR(bulan = null, tahun = null){
   let h = 0;
   let html = '';
   
-  // Tentukan jumlah hari dalam bulan
   const bulanInt = parseInt(bulan || new Date().getMonth());
   const tahunInt = parseInt(tahun || new Date().getFullYear());
   const daysInMonth = new Date(tahunInt, bulanInt + 1, 0).getDate();
@@ -397,7 +446,6 @@ async function loadR(bulan = null, tahun = null){
   $("#rekapTitle").textContent = "Rekap " + bulanNames[bulanInt] + " " + tahunInt;
 }
 
-// === EVENT LISTENER UNTUK REKAP ===
 $("#refreshBtn").onclick = () => {
   const bulan = $("#bulanPicker").value;
   const tahun = $("#tahunPicker").value;
@@ -442,7 +490,7 @@ document.querySelectorAll("[data-toggle]").forEach(b=>{
   b.onclick=()=>{
     const i=b.getAttribute("data-toggle"),e=$("#"+i);
     e.type=e.type==="password"?"text":"password";
-    b.textContent=e.type==="password"?"👁":""
+    b.textContent=e.type==="password"?"👁":"🙈"
   }
 });
 
