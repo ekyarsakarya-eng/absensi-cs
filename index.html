@@ -20,6 +20,66 @@ label,input,textarea,button,p,span,th,td{font-weight:600!important}
 .text-sm{font-size:1rem!important}
 .text-base{font-size:1.1rem!important}
 h1,h3{font-weight:700!important}
+
+/* Mobile Optimizations */
+@media (max-width: 640px) {
+  #rekapView {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+  }
+  
+  #rekapBody tr {
+    font-size: 0.875rem;
+  }
+  
+  #rekapBody td {
+    padding-top: 0.625rem;
+    padding-bottom: 0.625rem;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+  
+  select {
+    font-size: 14px;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  
+  button {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+button, select {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+#rekapView .overflow-auto {
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+
+#rekapView .overflow-auto::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+#rekapView .overflow-auto::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+#rekapView .overflow-auto::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+#rekapView .overflow-auto::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
 </style>
 </head>
 <body class="min-h-screen bg-gradient-to-b from-[#dbe4f0] to-[#e8eef7] text-slate-900">
@@ -29,7 +89,7 @@ h1,h3{font-weight:700!important}
     <div class="w-full glass rounded-3xl p-8">
       <div class="text-center mb-7"><img src="icon-192.png" class="w-24 h-24 mx-auto rounded-3xl mb-4 shadow-lg"><h1 class="text-2xl text-slate-900">Absensi Karyawan<br>Terpadu</h1><p class="text-slate-600 text-xs italic mt-1">Integrated Management System</p></div>
       <form id="loginForm" class="space-y-4"><div><label class="text-sm text-slate-700">Username</label><input id="username" class="w-full mt-1 px-4 py-3.5 rounded-2xl bg-slate-50 border-2 border-slate-300 outline-none text-base text-slate-900" required></div><div class="relative"><label class="text-sm text-slate-700">Password</label><input id="password" type="password" class="w-full mt-1 px-4 py-3.5 pr-11 rounded-2xl bg-slate-50 border-2 border-slate-300 outline-none text-base" required><button id="togglePass" type="button" class="absolute right-3 top-9 text-xl opacity-70">👁</button></div><button class="w-full py-4 rounded-2xl bg-sky-600 hover:bg-sky-700 text-white text-base btn">Masuk</button><p id="loginError" class="text-red-600 text-xs text-center hidden"></p></form>
-      <p class="text-center text- text-slate-500 mt-6">@v2.6 • SMG-2026</p>
+      <p class="text-center text-slate-500 mt-6">@v2.7 • SMG-2026</p>
     </div>
   </div>
 
@@ -48,13 +108,20 @@ h1,h3{font-weight:700!important}
 
   <div id="absensiView" class="hidden flex-1 flex flex-col px-5 py-6"><button data-back class="mb-3 text-sm text-slate-600 self-start">← Kembali</button><div class="glass rounded-3xl p-6 text-center flex-1 flex flex-col justify-center"><p id="jam" class="text-5xl font-light text-slate-900">--:--:--</p><p id="tanggal" class="text-sm text-slate-600 mt-1">-</p><div class="grid grid-cols-2 gap-4 mt-8"><button id="btnIn" class="py-4 rounded-2xl bg-emerald-600 text-white text-base btn">Masuk</button><button id="btnOut" class="py-4 rounded-2xl bg-rose-500 text-white text-base btn">Pulang</button></div><p class="text-xs text-slate-600 mt-4">In: <span id="timeIn" class="font-mono">-</span> | Out: <span id="timeOut" class="font-mono">-</span></p><p id="statusMsg" class="text-sky-700 text-sm h-5 mt-2"></p></div></div>
 
-  <div id="rekapView" class="hidden flex-1 flex flex-col px-5 py-6">
-    <button data-back class="mb-3 text-sm text-slate-600 self-start">← Kembali</button>
-    <div class="glass rounded-3xl p-5 flex-1 flex flex-col">
-      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-3 gap-2">
-        <h3 id="rekapTitle" class="text-base">Rekap</h3>
+  <div id="rekapView" class="hidden flex-1 flex flex-col px-4 py-5">
+    <button data-back class="mb-3 text-sm text-slate-600 self-start flex items-center gap-1">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+      </svg>
+      Kembali
+    </button>
+    
+    <div class="glass rounded-3xl p-4 flex-1 flex flex-col">
+      <div class="mb-3">
+        <h3 id="rekapTitle" class="text-lg font-bold text-slate-800 mb-3">Rekap</h3>
+        
         <div class="flex gap-2">
-          <select id="bulanPicker" class="px-3 py-1.5 rounded-xl border-2 border-slate-300 bg-white text-sm font-semibold">
+          <select id="bulanPicker" class="flex-1 px-3 py-2.5 rounded-xl border-2 border-slate-300 bg-white text-sm font-semibold text-slate-700 focus:border-sky-500 focus:outline-none">
             <option value="0">Januari</option>
             <option value="1">Februari</option>
             <option value="2">Maret</option>
@@ -68,23 +135,33 @@ h1,h3{font-weight:700!important}
             <option value="10">November</option>
             <option value="11">Desember</option>
           </select>
-          <select id="tahunPicker" class="px-3 py-1.5 rounded-xl border-2 border-slate-300 bg-white text-sm font-semibold">
+          
+          <select id="tahunPicker" class="w-24 px-3 py-2.5 rounded-xl border-2 border-slate-300 bg-white text-sm font-semibold text-slate-700 focus:border-sky-500 focus:outline-none">
             <option value="2025">2025</option>
             <option value="2026">2026</option>
             <option value="2027">2027</option>
           </select>
-          <button id="refreshBtn" class="text-xs px-3 py-1.5 bg-sky-600 text-white rounded-xl font-semibold">Tampilkan</button>
+          
+          <button id="refreshBtn" class="px-4 py-2.5 bg-sky-600 text-white rounded-xl font-semibold text-sm hover:bg-sky-700 active:scale-95 transition-all">
+            Tampilkan
+          </button>
         </div>
       </div>
-      <div class="flex-1 overflow-auto">
+      
+      <div class="flex-1 overflow-auto rounded-xl border border-slate-200 bg-white">
         <table class="w-full text-sm">
-          <thead class="text-slate-600 sticky top-0 bg-white/90 backdrop-blur">
-            <tr><th class="text-left py-2">Tgl</th><th>In</th><th>Out</th></tr>
+          <thead class="bg-slate-100 sticky top-0">
+            <tr>
+              <th class="py-2.5 px-3 text-left font-bold text-slate-700 text-xs uppercase tracking-wide">Tgl</th>
+              <th class="py-2.5 px-3 text-center font-bold text-slate-700 text-xs uppercase tracking-wide">In</th>
+              <th class="py-2.5 px-3 text-center font-bold text-slate-700 text-xs uppercase tracking-wide">Out</th>
+            </tr>
           </thead>
-          <tbody id="rekapBody" class="text-slate-800"></tbody>
+          <tbody id="rekapBody" class="text-slate-800 divide-y divide-slate-100"></tbody>
         </table>
       </div>
-      <p id="totalKerja" class="text-xs text-center mt-3 text-slate-600"></p>
+      
+      <p id="totalKerja" class="text-xs text-center mt-3 py-2 px-3 bg-sky-50 rounded-xl text-sky-700 font-semibold"></p>
     </div>
   </div>
 
@@ -109,7 +186,6 @@ h1,h3{font-weight:700!important}
   </div>
 </div>
 
-<!-- Modal Lokasi -->
 <div id="lokasiModal" class="fixed inset-0 bg-black/80 hidden items-center justify-center p-4 z-50">
   <div class="w-full max-w-sm glass rounded-3xl p-6">
     <h3 class="text-lg text-center mb-4">Pilih Lokasi Absen Masuk</h3>
@@ -118,7 +194,6 @@ h1,h3{font-weight:700!important}
   </div>
 </div>
 
-<!-- CAMERA MODAL -->
 <div id="camModal" class="fixed inset-0 bg-black/95 hidden items-center justify-center p-4 z-50">
   <div class="w-full max-w-sm">
     <div class="relative">
@@ -127,7 +202,7 @@ h1,h3{font-weight:700!important}
         <div class="bg-black/60 rounded-xl px-4 py-2.5 backdrop-blur-sm">
           <p id="wmNama" class="text-white text-sm font-bold">-</p>
           <p id="wmLokasi" class="text-white/80 text-xs mt-0.5">-</p>
-          <p id="wmWaktu" class="text-white/60 text-">--.--</p>
+          <p id="wmWaktu" class="text-white/60 text-xs">--.--</p>
         </div>
       </div>
     </div>
@@ -151,6 +226,6 @@ h1,h3{font-weight:700!important}
   </button>
   <p class="text-xs text-slate-500 mt-6">Setelah install, buka dari icon di layar utama</p>
 </div>
-<script src="app.js?v=35"></script>
+<script src="app.js?v=272"></script>
 </body>
 </html>
