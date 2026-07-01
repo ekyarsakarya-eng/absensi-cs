@@ -5,13 +5,24 @@ let user=null,cur=null,str=null,userLoc='-',profilePhotoData=null;
 let LOCATIONS = {};
 let lastHijriDate = '', cachedHijri = '';
 
-// === VERSI BARU - auto clear cache lama saat logout/login ===
+// === FORCE RE-LOGIN MECHANISM ===
 const APP_VERSION='2.7.2';
-if(localStorage.app_version && localStorage.app_version!== APP_VERSION){
-  if('caches' in window){ caches.keys().then(k=>k.forEach(n=>caches.delete(n))); }
-  if('serviceWorker' in navigator){ navigator.serviceWorker.getRegistrations().then(rs=>rs.forEach(r=>r.unregister())); }
+const storedVersion = localStorage.getItem('app_version');
+
+if(storedVersion && storedVersion !== APP_VERSION){
+  // Ada update - clear semua dan force logout
+  localStorage.clear();
+  sessionStorage.clear();
+  if('caches' in window){ 
+    caches.keys().then(k=>k.forEach(n=>caches.delete(n))); 
+  }
+  if('serviceWorker' in navigator){ 
+    navigator.serviceWorker.getRegistrations().then(rs=>rs.forEach(r=>r.unregister())); 
+  }
+  alert('Aplikasi telah diperbarui ke versi ' + APP_VERSION + '.\n\nSilakan login ulang untuk menikmati fitur terbaru.');
 }
-localStorage.app_version = APP_VERSION;
+
+localStorage.setItem('app_version', APP_VERSION);
 
 const $=s=>document.querySelector(s);
 const fixFoto=u=>{if(!u)return'icon-192.png';const i=(u.match(/[-\w]{25,}/)||[])[0];return i?`https://lh3.googleusercontent.com/d/${i}`:u};
@@ -91,7 +102,6 @@ async function api(p){
   const k=p.action+"_"+(p.username||"")+"_"+(p.bulan||"")+"_"+(p.tahun||"");
   if(p.action==="getRekap" && apiCache.get(k)) return apiCache.get(k);
 
-  // POST untuk absen & updateProfile - HAPUS keepalive, tambah retry
   if(p.action==="absen" || p.action==="updateProfile"){
     for(let attempt=1; attempt<=2; attempt++){
       try{
@@ -226,7 +236,14 @@ function tick(){
 
 $("#logoutBtn").onclick=()=>{localStorage.removeItem("absensi_user");location.reload()};
 $("#cardAbsensi").onclick=()=>{show("absensiView");loadT()};
-$("#cardRekap").onclick=()=>{show("rekapView");loadR()};
+$("#cardRekap").onclick=()=>{
+  // Set default bulan/tahun saat ini
+  const now = new Date();
+  $("#bulanPicker").value = now.getMonth();
+  $("#tahunPicker").value = now.getFullYear();
+  show("rekapView");
+  loadR();
+};
 $("#cardProfil").onclick=()=>openProfile();
 document.querySelectorAll("[data-back]").forEach(b=>b.onclick=()=>show("homeView"));
 
@@ -363,10 +380,13 @@ async function loadR(bulan = null, tahun = null){
     if(t.in) h++;
     const inTime = t.in || "-";
     const outTime = t.out || "-";
-    html += `<tr class="border-t border-slate-200 hover:bg-slate-50">
-      <td class="py-2 font-semibold">${String(i).padStart(2,"0")}</td>
-      <td class="text-center font-mono text-sm ${inTime !== '-' ? 'text-emerald-600' : 'text-slate-400'}">${inTime}</td>
-      <td class="text-center font-mono text-sm ${outTime !== '-' ? 'text-rose-600' : 'text-slate-400'}">${outTime}</td>
+    const hasIn = inTime !== "-";
+    const hasOut = outTime !== "-";
+    
+    html += `<tr class="hover:bg-slate-50 transition-colors">
+      <td class="py-2.5 px-3 font-bold text-slate-700">${String(i).padStart(2,"0")}</td>
+      <td class="py-2.5 px-3 text-center font-mono text-sm ${hasIn ? 'text-emerald-600 font-semibold' : 'text-slate-400'}">${inTime}</td>
+      <td class="py-2.5 px-3 text-center font-mono text-sm ${hasOut ? 'text-rose-600 font-semibold' : 'text-slate-400'}">${outTime}</td>
     </tr>`;
   }
   
@@ -385,7 +405,6 @@ $("#refreshBtn").onclick = () => {
   loadR(bulan, tahun);
 };
 
-// Auto load saat selector berubah
 $("#bulanPicker").onchange = () => {
   const bulan = $("#bulanPicker").value;
   const tahun = $("#tahunPicker").value;
@@ -423,7 +442,7 @@ document.querySelectorAll("[data-toggle]").forEach(b=>{
   b.onclick=()=>{
     const i=b.getAttribute("data-toggle"),e=$("#"+i);
     e.type=e.type==="password"?"text":"password";
-    b.textContent=e.type==="password"?"👁":"🙈"
+    b.textContent=e.type==="password"?"👁":""
   }
 });
 
@@ -450,8 +469,15 @@ $("#profileForm").onsubmit=async e=>{
 window.onload=()=>{
   checkInstallGate();
   const s=localStorage.absensi_user;
-  s?((e=>{
-    try{user=JSON.parse(e),init()}
-    catch{localStorage.removeItem("absensi_user"),show("loginView")}
-  })(s)):show("loginView")
+  if(s){
+    try{
+      user=JSON.parse(s);
+      init();
+    }catch{
+      localStorage.removeItem("absensi_user");
+      show("loginView");
+    }
+  }else{
+    show("loginView");
+  }
 };
