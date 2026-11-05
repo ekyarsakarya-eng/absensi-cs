@@ -154,7 +154,7 @@ function tick(){
     const pasaran=['Legi','Pahing','Pon','Wage','Kliwon'];
     const ref=new Date(2026,5,7);
     const selisih=Math.floor((n-ref)/86400000);
-    const pas=pasaran[(3+selisih+1000)%5];
+    const pas=pasaran[(4+selisih+1000)%5];
     moment.locale('id');
     const hijriMoment=moment(n).subtract(1,'days');
     const hijriBulan=['Muharram','Safar','Rabiul Awal','Rabiul Akhir','Jumadil Awal','Jumadil Akhir','Rajab','Syaban','Ramadhan','Syawal','Dzulkaidah','Dzulhijjah'];
