@@ -24,8 +24,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Outfit,sans-
 .safe-bottom{padding-bottom:env(safe-area-inset-bottom)}
 
 /* Home header */
-.home-header{background:linear-gradient(135deg,#1e293b,#334155);border-radius:24px;padding:20px 16px;text-align:center}
-.home-header h1{color:#fff;font-size:1.25rem;font-weight:700;margin:0;line-height:1.3}
+.home-header, .company-header{background:linear-gradient(135deg,#0f2d4a,#1e3a5f);border-radius:24px;padding:22px 18px;text-align:center;display:flex;align-items:center;justify-content:center;gap:14px}
+.home-header h1, .company-header h1{color:#fff;font-size:1.3rem;font-weight:700;margin:0;line-height:1.3;letter-spacing:0.3px}
+.company-header img{width:50px;height:50px;object-fit:contain;display:block}
 
 /* User card */
 .user-card{padding:20px 16px}
@@ -131,9 +132,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Outfit,sans-
   <!-- HOME VIEW -->
   <div id="homeView" style="display:none;flex-direction:column;ap:16px;padding-bottom:24px">
   <!-- Company Header -->
-<div class="home-header safe-top" style="display:flex;align-items:center;justify-content:center;gap:14px;padding:22px 18px">
-    <img src="logo-header.png" alt="Logo PSKS" style="width:50px;height:50px;object-fit:contain;display:block">
-    <h1 style="margin:0;font-size:1.3rem;font-weight:700;text-align:center;line-height:1.3;letter-spacing:0.3px">PT. Peran Sukses Karya Sejati</h1>
+<div class="home-header safe-top">
+    <img src="logo-header.png" alt="Logo PSKS">
+    <h1>PT. Peran Sukses Karya Sejati</h1>
 </div>
 
     <!-- User & Clock Card -->
@@ -180,11 +181,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Outfit,sans-
   </div>
 
   <!-- ABSENSI VIEW -->
-  <div id="absensiView" style="display:none;flex-direction:column;padding-bottom:24px">
+<div id="absensiView" style="display:none;flex-direction:column;gap:16px;padding-bottom:24px">
     <button data-back class="btn-back">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-      Kembali
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        Kembali
     </button>
+    <div class="company-header">
+        <img src="logo-header.png" alt="Logo PSKS">
+        <h1>PT. Peran Sukses Karya Sejati</h1>
+    </div>
     <div class="glass" style="padding:24px 20px;text-align:center;flex:1;display:flex;flex-direction:column;justify-content:center">
       <p id="jam" style="font-size:2.8rem;font-weight:300;color:#0f172a;margin:0 0 8px;font-variant-numeric:tabular-nums;letter-spacing:1px">--:--:--</p>
       <p id="tanggal" style="font-size:.9rem;color:#64748b;margin:0 0 24px">-</p>
@@ -198,11 +203,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Outfit,sans-
   </div>
 
   <!-- REKAP VIEW -->
-  <div id="rekapView" style="display:none;flex-direction:column;padding-bottom:24px">
+<div id="rekapView" style="display:none;flex-direction:column;gap:16px;padding-bottom:24px">
     <button data-back class="btn-back">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-      Kembali
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        Kembali
     </button>
+    <div class="company-header">
+        <img src="logo-header.png" alt="Logo PSKS">
+        <h1>PT. Peran Sukses Karya Sejati</h1>
+    </div>
     <div class="glass" style="padding:20px 16px;flex:1;display:flex;flex-direction:column">
       <div class="rekap-header">
         <h3 id="rekapTitle" class="rekap-title">Rekap</h3>
@@ -234,11 +243,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Outfit,sans-
   </div>
 
   <!-- PROFILE VIEW -->
-  <div id="profileView" style="display:none;flex-direction:column;padding-bottom:24px">
+<div id="profileView" style="display:none;flex-direction:column;gap:16px;padding-bottom:24px">
     <button data-back class="btn-back">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-      Kembali
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        Kembali
     </button>
+    <div class="company-header">
+        <img src="logo-header.png" alt="Logo PSKS">
+        <h1>PT. Peran Sukses Karya Sejati</h1>
+    </div>
     <div class="glass" style="padding:24px 20px;flex:1;overflow:auto">
       <h3 style="font-size:1.2rem;color:#1e293b;margin:0 0 20px;font-weight:700">Edit Profil</h3>
       <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:24px">
