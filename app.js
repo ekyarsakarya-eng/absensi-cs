@@ -327,6 +327,95 @@ $("#profileForm").onsubmit=async e=>{
   }catch(t){$("#profileMsg").textContent=t.message}
 };
 
+// ============================================
+// TRUE AUTO-UPDATE (Cek Otomatis Setiap 5 Menit)
+// ============================================
+
+async function cekUpdateOtomatis() {
+    try {
+        // 1. Minta info file app.js terbaru dari server (hanya header, hemat kuota)
+        const res = await fetch('./app.js?t=' + Date.now(), { method: 'HEAD', cache: 'no-store' });
+        const tanggalServer = res.headers.get('Last-Modified');
+        const tanggalDisimpan = localStorage.getItem('tanggalAppTerakhir_absensi_cs');
+
+        // 2. Jika tanggal di server BEDA dengan yang ada di HP user, berarti ada update!
+        if (tanggalDisimpan && tanggalServer !== tanggalDisimpan) {
+            console.log('🚀 Update terdeteksi di Absensi CS!');
+            tampilkanNotifUpdate();
+        }
+
+        // 3. Simpan tanggal terbaru ke memori HP user
+        if (tanggalServer) {
+            localStorage.setItem('tanggalAppTerakhir_absensi_cs', tanggalServer);
+        }
+    } catch (e) {
+        // Diamkan jika offline/error (tidak mengganggu user)
+    }
+}
+
+// Jalankan pengecekan pertama kali saat aplikasi dibuka
+cekUpdateOtomatis();
+
+// Ulangi pengecekan setiap 5 menit (300.000 ms)
+setInterval(cekUpdateOtomatis, 5 * 60 * 1000);
+
+// --- Fungsi Tampilan Notifikasi ---
+function tampilkanNotifUpdate() {
+    if (document.getElementById('notifUpdateAbsensi')) return; // Mencegah notifikasi dobel
+
+    const html = `
+    <div id="notifUpdateAbsensi" style="position: fixed; top: 16px; left: 16px; right: 16px; max-width: 400px; margin: 0 auto; background: #0ea5e9; color: white; padding: 16px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); z-index: 99999; display: flex; align-items: center; justify-content: space-between; animation: slideDown 0.4s ease-out;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="font-size: 24px; animation: spin 1s linear infinite;">🔄</div>
+            <div>
+                <p style="font-weight: bold; font-size: 14px; margin: 0;">Update Aplikasi Tersedia!</p>
+                <p style="font-size: 12px; opacity: 0.9; margin: 4px 0 0;">Klik tombol di kanan untuk memperbarui</p>
+            </div>
+        </div>
+        <button onclick="paksaUpdateAbsensi()" style="background: white; color: #0ea5e9; padding: 8px 16px; border-radius: 8px; font-weight: bold; font-size: 13px; border: none; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: background 0.2s;">
+            Update
+        </button>
+    </div>
+    <style>
+        @keyframes slideDown { from { transform: translateY(-100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    </style>`;
+    
+    document.body.insertAdjacentHTML('beforeend', html);
+
+    // Hilang otomatis setelah 15 detik jika tidak diklik
+    setTimeout(() => {
+        const n = document.getElementById('notifUpdateAbsensi');
+        if (n) {
+            n.style.opacity = '0';
+            n.style.transition = 'opacity 0.5s';
+            setTimeout(() => n.remove(), 500);
+        }
+    }, 15000);
+}
+
+function paksaUpdateAbsensi() {
+    const n = document.getElementById('notifUpdateAbsensi');
+    if (n) n.remove();
+
+    // 1. Hapus Cache Storage (untuk PWA/Service Worker)
+    if ('caches' in window) {
+        caches.keys().then(names => {
+            names.forEach(name => caches.delete(name));
+        });
+    }
+    
+    // 2. Unregister Service Worker lama
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(registrations => {
+            registrations.forEach(registration => registration.unregister());
+        });
+    }
+
+    // 3. Reload paksa dari server (bypass cache browser)
+    window.location.reload();
+}
+
 window.onload=()=>{
   checkInstallGate();
   const s=localStorage.absensi_user;
