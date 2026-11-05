@@ -327,6 +327,13 @@ $("#profileForm").onsubmit=async e=>{
   }catch(t){$("#profileMsg").textContent=t.message}
 };
 
+window.onload=()=>{
+  checkInstallGate();
+  const s=localStorage.absensi_user;
+  if(s){try{user=JSON.parse(s);init()}catch{localStorage.removeItem("absensi_user");show("loginView")}}
+  else{show("loginView")}
+};
+
 // ============================================
 // TRUE AUTO-UPDATE (Cek Otomatis Setiap 5 Menit)
 // ============================================
@@ -415,10 +422,3 @@ function paksaUpdateAbsensi() {
     // 3. Reload paksa dari server (bypass cache browser)
     window.location.reload();
 }
-
-window.onload=()=>{
-  checkInstallGate();
-  const s=localStorage.absensi_user;
-  if(s){try{user=JSON.parse(s);init()}catch{localStorage.removeItem("absensi_user");show("loginView")}}
-  else{show("loginView")}
-};
